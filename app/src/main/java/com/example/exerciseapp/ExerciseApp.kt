@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -178,11 +179,13 @@ fun BottomNavigation(){
 @Composable
 fun TopAppBar(
     title: String,
-    canNavigateBack: Boolean,
-    canAdd: Boolean,
+    canNavigateBack: Boolean = false,
+    canAdd: Boolean = false,
+    canEdit: Boolean = false,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     navigateUp: () -> Unit = {},
+    editItem: () -> Unit = {},
     addItem: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
@@ -190,11 +193,19 @@ fun TopAppBar(
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            if (canNavigateBack) {
+            if (canNavigateBack and !canEdit) {
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back"
+                    )
+                }
+            }
+            if (!canNavigateBack and canEdit) {
+                IconButton(onClick = editItem) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "Edit"
                     )
                 }
             }

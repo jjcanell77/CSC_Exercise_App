@@ -2,4 +2,6 @@
     <string name="app_name">Exercise App</string>
     <string name="back">Back</string>
     <string name="no_excercises_card">Looks like there are no exercises in this Workout.</string>
+    <string name="workout_screen_title">Workouts</string>
+    <string name="program_screen_title">Programs</string>
 </resources>

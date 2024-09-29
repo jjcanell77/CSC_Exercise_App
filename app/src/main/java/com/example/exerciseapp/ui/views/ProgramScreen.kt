@@ -1,3 +1,4 @@
+
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.example.exerciseapp.ui.views
 
@@ -16,13 +17,13 @@ import com.example.exerciseapp.TopAppBar
 import com.example.exerciseapp.Workout
 import com.example.exerciseapp.ui.theme.ExerciseAppTheme
 
-//object WorkoutScreenDestination : NavigationDestination {
-//    override val route = "workout_screen"
-//    override val titleRes = R.string.workout_screen_title
+//object ProgramScreenDestination : NavigationDestination {
+//    override val route = "program_screen"
+//    override val titleRes = R.string.program_screen_title
 //}
 
 @Composable
-fun WorkoutScreen (
+fun ProgramScreen (
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -54,18 +55,18 @@ fun WorkoutScreen (
         )
     )
     Scaffold(
-    modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-    topBar = {
-        TopAppBar(
-            title = stringResource(R.string.workout_screen_title),
-            canEdit = true,
-            canAdd = true,
-            scrollBehavior = scrollBehavior
-        )
-    },
-    bottomBar = {
-        BottomNavigation()
-    }
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = stringResource(R.string.program_screen_title),
+                canEdit = false,
+                canAdd = false,
+                scrollBehavior = scrollBehavior
+            )
+        },
+        bottomBar = {
+            BottomNavigation()
+        }
     ){ innerPadding ->
         ListBody(
             exerciseList = workout.exercises,
@@ -76,8 +77,8 @@ fun WorkoutScreen (
 
 @Preview(showBackground = true)
 @Composable
-fun WorkoutScreenPreview () {
+fun ProgramScreennPreview () {
     ExerciseAppTheme {
-        WorkoutScreen()
+        ProgramScreen()
     }
 }
