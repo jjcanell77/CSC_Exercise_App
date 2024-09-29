@@ -77,7 +77,6 @@ fun ExerciseScreen (
     ){ innerPadding ->
         ExerciseBody(
             workoutList = workoutList,
-            exerciseList = exerciseList,
             modifier = modifier.fillMaxSize(),
             contentPadding = innerPadding,
             onSelected = exerciseViewModel::onToggleList,
@@ -90,7 +89,6 @@ fun ExerciseScreen (
 @Composable
 private fun ExerciseBody(
     workoutList: List<Workout>,
-    exerciseList: List<Exercise>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     onSelected: (Int) -> Unit = {},
@@ -161,7 +159,7 @@ private fun WorkoutCard(
 
 @Preview(showBackground = true)
 @Composable
-fun ExerciseListPreviw() {
+fun ExerciseListPreview() {
     val exercise =
         Exercise(
             id = 1,

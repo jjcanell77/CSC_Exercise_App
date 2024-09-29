@@ -4,4 +4,5 @@
     <string name="no_excercises_card">Looks like there are no exercises in this Workout.</string>
     <string name="workout_screen_title">Workouts</string>
     <string name="program_screen_title">Programs</string>
+    <string name="log_entry_screen">Log Entry</string>
 </resources>
