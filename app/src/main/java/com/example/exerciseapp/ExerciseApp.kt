@@ -29,54 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.example.exerciseapp.ui.views.ExerciseListScreen
-import com.google.type.DateTime
-
-data class Exercise(
-    val id: Int,
-    val name: String
-)
-data class CustomExercise(
-    val id: Int,
-    val name: String
-)
-data class Workout(
-    val id: Int,
-    val name: String,
-    val image: Int,
-    val exercises: List<Exercise>
-)
-data class CustomWorkout(
-    val id: Int,
-    val name: String,
-    val exercises: List<Exercise>
-)
-
-data class  BottomNavigationItem(
-    val title: String,
-    val selectedIcon: Int,
-    val unSelectedIcon: Int
-)
-data class Set(
-    val id: Int,
-    val weight: Int,
-    val reps: Int
-)
-data class  Log(
-    val id: Int,
-    val exerciseId: Int,
-    val set: List<Set>,
-    val notes: String,
-    val date: DateTime
-)
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.exerciseapp.data.model.BottomNavigationItem
+import com.example.exerciseapp.data.model.Exercise
+import com.example.exerciseapp.ui.navigation.AppNavHost
 
 @Composable
 fun ExerciseApp(
-//    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController()
 ) {
-//    ExerciseScreen()
-    ExerciseListScreen()
-//    TaskNavHost(navController = navController)
+    AppNavHost(navController = navController)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

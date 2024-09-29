@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 package com.example.exerciseapp.ui.views
 
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,19 +10,23 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.exerciseapp.BottomNavigation
-import com.example.exerciseapp.Exercise
 import com.example.exerciseapp.R
 import com.example.exerciseapp.TopAppBar
-import com.example.exerciseapp.Workout
+import com.example.exerciseapp.data.model.Exercise
+import com.example.exerciseapp.data.model.Workout
+import com.example.exerciseapp.ui.navigation.NavigationDestination
 import com.example.exerciseapp.ui.theme.ExerciseAppTheme
 
-//object WorkoutScreenDestination : NavigationDestination {
-//    override val route = "workout_screen"
-//    override val titleRes = R.string.workout_screen_title
-//}
+object WorkoutDestination : NavigationDestination {
+    override val route = "workout_screen"
+    override val titleRes = R.string.workout_screen_title
+}
 
 @Composable
 fun WorkoutScreen (
+    navigateToProgram: () -> Unit,
+    navigateToExercise: () -> Unit,
+    navigateToExerciseList: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()

@@ -1,9 +1,9 @@
 package com.example.exerciseapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.exerciseapp.Exercise
 import com.example.exerciseapp.R
-import com.example.exerciseapp.Workout
+import com.example.exerciseapp.data.model.Exercise
+import com.example.exerciseapp.data.model.Workout
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

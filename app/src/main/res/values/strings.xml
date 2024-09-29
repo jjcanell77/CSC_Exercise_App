@@ -5,4 +5,6 @@
     <string name="workout_screen_title">Workouts</string>
     <string name="program_screen_title">Programs</string>
     <string name="log_entry_screen">Log Entry</string>
+    <string name="exercise_screen_title">Exercise\n</string>
+    <string name="exercise_list_screen">Exercise List</string>
 </resources>

@@ -11,19 +11,23 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.exerciseapp.BottomNavigation
-import com.example.exerciseapp.Exercise
 import com.example.exerciseapp.R
 import com.example.exerciseapp.TopAppBar
-import com.example.exerciseapp.Workout
+import com.example.exerciseapp.data.model.Exercise
+import com.example.exerciseapp.data.model.Workout
+import com.example.exerciseapp.ui.navigation.NavigationDestination
 import com.example.exerciseapp.ui.theme.ExerciseAppTheme
 
-//object ProgramScreenDestination : NavigationDestination {
-//    override val route = "program_screen"
-//    override val titleRes = R.string.program_screen_title
-//}
+object ProgramDestination : NavigationDestination {
+    override val route = "program_screen"
+    override val titleRes = R.string.program_screen_title
+}
 
 @Composable
 fun ProgramScreen (
+    navigateToWorkout: () -> Unit,
+    navigateToExercise: () -> Unit,
+    navigateToExerciseList: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()

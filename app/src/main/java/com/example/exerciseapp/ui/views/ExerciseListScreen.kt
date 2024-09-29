@@ -29,15 +29,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.exerciseapp.BottomNavigation
-import com.example.exerciseapp.Exercise
 import com.example.exerciseapp.R
 import com.example.exerciseapp.TopAppBar
-import com.example.exerciseapp.Workout
+import com.example.exerciseapp.data.model.Exercise
+import com.example.exerciseapp.data.model.Workout
+import com.example.exerciseapp.ui.navigation.NavigationDestination
 import com.example.exerciseapp.ui.theme.ExerciseAppTheme
+
+object ExerciseListDestination : NavigationDestination {
+    override val route = "exercise_list_screen"
+    override val titleRes = R.string.exercise_list_screen
+    const val workoutIddArg = "workoutId"
+    val routeWithArgs = "$route/{$workoutIddArg}"
+}
 
 @Composable
 fun ExerciseListScreen (
     modifier: Modifier = Modifier,
+    navigateBack: () -> Unit,
+    navigateToLogEntry: (Int) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val workout = Workout(
