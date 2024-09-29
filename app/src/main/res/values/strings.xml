@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Exercise App</string>
+    <string name="back">Back</string>
+    <string name="no_excercises_card">Looks like there are no exercises in this Workout.</string>
+</resources>
