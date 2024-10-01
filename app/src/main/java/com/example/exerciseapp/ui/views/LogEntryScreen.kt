@@ -16,6 +16,7 @@
     import androidx.compose.foundation.lazy.items
     import androidx.compose.foundation.lazy.itemsIndexed
     import androidx.compose.material.icons.Icons
+    import androidx.compose.material.icons.automirrored.filled.ArrowBack
     import androidx.compose.material.icons.outlined.Clear
     import androidx.compose.material3.Button
     import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +42,7 @@
     import androidx.compose.ui.unit.dp
     import androidx.lifecycle.viewmodel.compose.viewModel
     import com.example.exerciseapp.BottomNavigation
+    import com.example.exerciseapp.TopIcon
     import com.example.exerciseapp.R
     import com.example.exerciseapp.TopAppBar
     import com.example.exerciseapp.data.model.Exercise
@@ -87,9 +89,8 @@
             topBar = {
                 TopAppBar(
                     title = exercise?.name ?: stringResource(R.string.log_entry_screen),
-                    canNavigateBack = true,
                     scrollBehavior = scrollBehavior,
-                    navigateUp = onNavigateUp
+                    leftIcon ={ TopIcon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", onClick = {onNavigateUp()}) },
                 )
             },
             bottomBar = {

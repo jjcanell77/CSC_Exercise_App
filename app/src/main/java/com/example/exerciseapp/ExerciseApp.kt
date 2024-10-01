@@ -28,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
@@ -174,45 +175,33 @@ fun BottomNavigation(
 fun TopAppBar(
     modifier: Modifier = Modifier,
     title: String,
-    canNavigateBack: Boolean = false,
-    canAdd: Boolean = false,
-    canEdit: Boolean = false,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    navigateUp: () -> Unit = {},
-    editItem: () -> Unit = {},
-    addItem: () -> Unit = {}
+    leftIcon: @Composable () -> Unit = {},
+    rightIcon: @Composable () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = { Text(title) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            if (canNavigateBack and !canEdit) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            }
-            if (!canNavigateBack and canEdit) {
-                IconButton(onClick = editItem) {
-                    Icon(
-                        imageVector = Filled.Edit,
-                        contentDescription = "Edit"
-                    )
-                }
-            }
+            leftIcon()
         },
         actions = {
-            if (canAdd) {
-                IconButton(onClick = addItem) {
-                    Icon(
-                        imageVector = Filled.Add,
-                        contentDescription = "Add"
-                    )
-                }
-            }
+            rightIcon()
         }
     )
+}
+
+@Composable
+fun TopIcon (
+    imageVector: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit
+){
+    IconButton(onClick = onClick) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = contentDescription
+        )
+    }
 }

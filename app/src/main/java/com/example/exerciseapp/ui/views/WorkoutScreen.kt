@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.AlertDialog
@@ -37,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exerciseapp.BottomNavigation
+import com.example.exerciseapp.TopIcon
 import com.example.exerciseapp.R
 import com.example.exerciseapp.TopAppBar
 import com.example.exerciseapp.data.model.Workout
@@ -50,10 +54,13 @@ object WorkoutDestination : NavigationDestination {
     override val titleRes = R.string.workout_screen_title
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutScreen (
     navigateToProgram: () -> Unit,
     navigateToExercise: () -> Unit,
+//    navigateToWorkoutEntry: (Int) -> Unit,
+    navigateToWorkoutEntry: () -> Unit,
     navigateToExerciseList: (Int) -> Unit,
     modifier: Modifier = Modifier,
     workoutViewModel: WorkoutViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -61,15 +68,15 @@ fun WorkoutScreen (
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val workoutList by workoutViewModel.workouts.collectAsState()
     var isEdit by remember { mutableStateOf(false) }
+    var showWorkoutModal by remember { mutableStateOf(false) }
+
     Scaffold(
     modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     topBar = {
         TopAppBar(
             title = stringResource(R.string.workout_screen_title),
-            canEdit = true,
-            canAdd = true,
-            editItem = {isEdit = !isEdit},
-            addItem = {/*Todo*/},
+            rightIcon ={ TopIcon(imageVector = Icons.Filled.Edit, contentDescription = "Edit", onClick = {isEdit = !isEdit})},
+            leftIcon = {TopIcon(imageVector = Icons.Filled.Add, contentDescription = "Add", onClick = {showWorkoutModal = true})},
             scrollBehavior = scrollBehavior
         )
     },
@@ -87,6 +94,22 @@ fun WorkoutScreen (
             onSelected = navigateToExerciseList,
             workoutViewModel = workoutViewModel
         )
+        if (showWorkoutModal) {
+            WorkoutModal(
+                currentName = "", // Empty since it's a new workout
+                onConfirm = { newName ->
+                    showWorkoutModal = false
+                    // Store the new workout name in the ViewModel
+                    workoutViewModel.newWorkoutName = newName
+                    // Navigate to WorkoutEntryScreen
+                    navigateToWorkoutEntry()
+                },
+                onDismiss = {
+                    showWorkoutModal = false
+                }
+            )
+        }
+
     }
 }
 
@@ -94,7 +117,7 @@ fun WorkoutScreen (
 fun WorkoutBody(
     modifier: Modifier = Modifier,
     workoutList: List<Workout>,
-    isEdit: Boolean,
+    isEdit: Boolean = false,
     onSelected: (Int) -> Unit = {},
     workoutViewModel: WorkoutViewModel,
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -128,7 +151,7 @@ fun WorkoutCard(
     workout: Workout,
     modifier: Modifier = Modifier,
     workoutViewModel: WorkoutViewModel,
-    isEdit: Boolean = false
+    isEdit: Boolean
 ) {
     var showRenameDialog by remember { mutableStateOf(false) }
     Card(
@@ -166,7 +189,7 @@ fun WorkoutCard(
             }
         }
         if (showRenameDialog) {
-            RenameWorkoutDialog(
+            WorkoutModal(
                 currentName = workout.name,
                 onConfirm = { newName ->
                     workoutViewModel.renameWorkout(workout.copy(name = newName))
@@ -181,7 +204,7 @@ fun WorkoutCard(
 }
 
 @Composable
-fun RenameWorkoutDialog(
+fun WorkoutModal(
     currentName: String,
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
@@ -218,6 +241,6 @@ fun RenameWorkoutDialog(
 @Composable
 fun RenameWorkoutDialogPreview () {
     ExerciseAppTheme {
-        RenameWorkoutDialog("Chest Day", {}, {})
+        WorkoutModal("Chest Day", {}, {})
     }
 }

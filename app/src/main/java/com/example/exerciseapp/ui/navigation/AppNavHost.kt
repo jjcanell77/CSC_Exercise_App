@@ -17,6 +17,8 @@ import com.example.exerciseapp.ui.views.LogEntryDestination
 import com.example.exerciseapp.ui.views.LogEntryScreen
 import com.example.exerciseapp.ui.views.ProgramScreen
 import com.example.exerciseapp.ui.views.WorkoutDestination
+import com.example.exerciseapp.ui.views.WorkoutEntryScreen
+import com.example.exerciseapp.ui.views.WorkoutEntryScreenDestination
 import com.example.exerciseapp.ui.views.WorkoutScreen
 
 @Composable
@@ -47,12 +49,33 @@ fun AppNavHost(
             WorkoutScreen(
                 navigateToProgram = { navController.navigate(ProgramDestination.route) },
                 navigateToExercise = { navController.navigate(HomeDestination.route) },
+                navigateToWorkoutEntry = { navController.navigate(WorkoutEntryScreenDestination.route) },
+//                navigateToWorkoutEntry = { navController.navigate("${WorkoutEntryScreenDestination.route}/${it}") },
                 navigateToExerciseList = { navController.navigate("${ExerciseListDestination.route}/${it}") }
             )
         }
         composable(
+            route = WorkoutEntryScreenDestination.route
+        ) {
+            WorkoutEntryScreen(
+                navigateToWorkout = { navController.navigate(WorkoutDestination.route) },
+                onNavigateUp = { navController.navigateUp() }
+            )
+        }
+//        composable(
+//            route = WorkoutEntryScreenDestination.routeWithArgs,
+//            arguments = listOf(navArgument(WorkoutEntryScreenDestination.workoutIdArg) {
+//                type = NavType.IntType
+//            })
+//        ) {
+//            WorkoutEntryScreen(
+//                navigateToWorkout = { navController.navigate(WorkoutDestination.route) },
+//                onNavigateUp = { navController.navigateUp() }
+//            )
+//        }
+        composable(
             route = ExerciseListDestination.routeWithArgs,
-            arguments = listOf(navArgument(ExerciseListDestination.workoutIddArg) {
+            arguments = listOf(navArgument(ExerciseListDestination.workoutIdArg) {
                 type = NavType.IntType
             })
         ) {

@@ -9,6 +9,9 @@ interface ExerciseDao {
     @Query("SELECT * FROM muscle_group")
     suspend fun getAllMuscleGroups(): List<MuscleGroup>
 
+    @Query("SELECT * FROM exercises")
+    suspend fun getAllExercises(): List<Exercise>
+
     @Query("SELECT * FROM exercises WHERE typeId = :typeId")
     suspend fun getExercisesByMuscleGroup(typeId: Int): List<Exercise>
 

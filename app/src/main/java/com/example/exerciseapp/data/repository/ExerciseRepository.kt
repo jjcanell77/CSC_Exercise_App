@@ -10,6 +10,10 @@ class ExerciseRepository(private val exerciseDao: ExerciseDao) {
         return exerciseDao.getAllMuscleGroups()
     }
 
+    suspend fun getAllExercises(): List<Exercise> {
+        return exerciseDao.getAllExercises()
+    }
+
     suspend fun getExercisesByMuscleGroup(typeId: Int): List<Exercise> {
         return exerciseDao.getExercisesByMuscleGroup(typeId)
     }

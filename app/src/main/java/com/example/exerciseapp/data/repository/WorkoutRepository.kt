@@ -10,6 +10,13 @@ class WorkoutRepository(
     private val workoutDao: WorkoutDao,
     private val workoutExerciseDao: WorkoutExerciseDao
 ) {
+    suspend fun insertWorkout(workout: Workout): Long {
+        return workoutDao.insertWorkout(workout)
+    }
+
+    suspend fun insertWorkoutExerciseCrossRef(crossRef: WorkoutExercise) {
+        workoutExerciseDao.insertWorkoutExercise(crossRef)
+    }
 
     suspend fun getAllWorkouts(): List<Workout> {
         return workoutDao.getAllWorkouts()

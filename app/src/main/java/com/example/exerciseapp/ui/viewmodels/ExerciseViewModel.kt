@@ -20,6 +20,7 @@ class ExerciseViewModel(
 
     init {
         getMuscleGroups()
+        getExercises()
     }
 
     private fun getMuscleGroups() {
@@ -27,6 +28,13 @@ class ExerciseViewModel(
             muscleGroupList.value = exerciseRepository.getAllMuscleGroups()
         }
     }
+
+    fun getExercises() {
+        viewModelScope.launch {
+            exerciseList.value = exerciseRepository.getAllExercises()
+        }
+    }
+
 
     fun onSearchTextChange(newText: String) {
         searchText.value = newText
