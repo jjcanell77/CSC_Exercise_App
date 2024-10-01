@@ -57,8 +57,11 @@ fun AppNavHost(
             })
         ) {
             ExerciseListScreen(
-                navigateBack = { navController.popBackStack() },
-                navigateToLogEntry = { navController.navigate("${LogEntryDestination.route}/${it}") }
+                navigateToExercise = { navController.navigate(HomeDestination.route) },
+                navigateToWorkout = { navController.navigate(WorkoutDestination.route) },
+                navigateToProgram = { navController.navigate(ProgramDestination.route) },
+                navigateToLogEntry = { navController.navigate("${LogEntryDestination.route}/${it}") },
+                onNavigateUp = { navController.navigateUp() }
             )
         }
         composable(
@@ -68,7 +71,10 @@ fun AppNavHost(
             })
         ) {
             LogEntryScreen(
-                navigateBack = { navController.popBackStack() }
+                navigateToExercise = { navController.navigate(HomeDestination.route) },
+                navigateToWorkout = { navController.navigate(WorkoutDestination.route) },
+                navigateToProgram = { navController.navigate(ProgramDestination.route) },
+                onNavigateUp = { navController.navigateUp() }
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.example.exerciseapp.data.model
 
-import kotlinx.datetime.LocalDateTime
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -22,7 +21,6 @@ data class Log(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val exerciseId: Int,
-    val sets: List<ExerciseSet>, // Renamed from 'set' to 'sets' for clarity
-    val notes: String,
-    val date: LocalDateTime
+    val notes: String = "",
+    val sets: MutableList<ExerciseSet> = mutableListOf()
 )

@@ -50,9 +50,9 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.hilt.android)
     implementation(libs.androidx.core.ktx)
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+    implementation(libs.kotlinx.datetime)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

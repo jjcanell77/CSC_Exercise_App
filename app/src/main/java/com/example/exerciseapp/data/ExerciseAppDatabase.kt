@@ -9,6 +9,7 @@ import androidx.room.TypeConverters
 import com.example.exerciseapp.data.dao.ExerciseDao
 import com.example.exerciseapp.data.dao.LogDao
 import com.example.exerciseapp.data.dao.WorkoutDao
+import com.example.exerciseapp.data.dao.WorkoutExerciseDao
 import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.ExerciseSet
 import com.example.exerciseapp.data.model.Log
@@ -34,6 +35,7 @@ abstract class ExerciseAppDatabase : RoomDatabase() {
     abstract fun exerciseDao(): ExerciseDao
     abstract fun workoutDao(): WorkoutDao
     abstract fun logDao(): LogDao
+    abstract fun workoutExerciseDao(): WorkoutExerciseDao
 
     companion object {
         @Volatile

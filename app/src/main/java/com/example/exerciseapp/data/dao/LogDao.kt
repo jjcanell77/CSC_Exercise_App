@@ -17,9 +17,6 @@ interface LogDao {
     suspend fun insertExerciseSet(exerciseSet: ExerciseSet): Long
 
     @Transaction
-    @Query("SELECT * FROM logs WHERE id = :logId")
-    suspend fun getLogWithSets(logId: Int): LogWithSets
-
-    @Query("SELECT * FROM logs WHERE exerciseId = :exerciseId")
-    suspend fun getLogsForExercise(exerciseId: Int): List<Log>
+    @Query("SELECT * FROM logs WHERE exerciseId = :exerciseId ORDER BY id DESC LIMIT 1")
+    suspend fun getLatestLogWithSets(exerciseId: Int): LogWithSets?
 }

@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -101,26 +102,33 @@ fun TopSearchBar(
 }
 
 @Composable
-fun BottomNavigation(){
+fun BottomNavigation(
+    navigateToWorkout: () -> Unit = {},
+    navigateToProgram: () -> Unit = {},
+    navigateToExercise: () -> Unit = {}
+){
     val items = listOf(
         BottomNavigationItem(
             title = "exercises",
             selectedIcon = R.drawable.exercises_active,
-            unSelectedIcon = R.drawable.exercises_inactive
+            unSelectedIcon = R.drawable.exercises_inactive,
+            navigate = navigateToExercise
         ),
         BottomNavigationItem(
             title = "workouts",
             selectedIcon = R.drawable.workouts_active,
-            unSelectedIcon = R.drawable.workouts_inactive
+            unSelectedIcon = R.drawable.workouts_inactive,
+            navigate = navigateToWorkout
         ),
         BottomNavigationItem(
             title = "programs",
             selectedIcon = R.drawable.programs_active,
-            unSelectedIcon = R.drawable.programs_inactive
+            unSelectedIcon = R.drawable.programs_inactive,
+            navigate = navigateToProgram
         )
     )
     var selectedIcon by rememberSaveable {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     NavigationBar(
         containerColor = Color(0xFFF7F7F7)
@@ -131,7 +139,9 @@ fun BottomNavigation(){
                 selected = selectedIcon == index,
                 onClick = {
                     selectedIcon = index
-//                  nacController.navigate(item.title)
+                    if(index != selectedIcon){
+                        item.navigate
+                    }
                 },
 //                modifier = Modifier.padding(0.dp),
                 colors = NavigationBarItemColors(
@@ -162,11 +172,11 @@ fun BottomNavigation(){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
+    modifier: Modifier = Modifier,
     title: String,
     canNavigateBack: Boolean = false,
     canAdd: Boolean = false,
     canEdit: Boolean = false,
-    modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     navigateUp: () -> Unit = {},
     editItem: () -> Unit = {},
@@ -188,7 +198,7 @@ fun TopAppBar(
             if (!canNavigateBack and canEdit) {
                 IconButton(onClick = editItem) {
                     Icon(
-                        imageVector = Icons.Filled.Edit,
+                        imageVector = Filled.Edit,
                         contentDescription = "Edit"
                     )
                 }
@@ -198,7 +208,7 @@ fun TopAppBar(
             if (canAdd) {
                 IconButton(onClick = addItem) {
                     Icon(
-                        imageVector = Icons.Filled.Add,
+                        imageVector = Filled.Add,
                         contentDescription = "Add"
                     )
                 }

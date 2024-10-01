@@ -14,14 +14,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -30,40 +28,35 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exerciseapp.BottomNavigation
 import com.example.exerciseapp.R
 import com.example.exerciseapp.TopSearchBar
-import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.MuscleGroup
-import com.example.exerciseapp.data.model.Workout
+import com.example.exerciseapp.ui.AppViewModelProvider
 import com.example.exerciseapp.ui.navigation.NavigationDestination
 import com.example.exerciseapp.ui.theme.ExerciseAppTheme
 import com.example.exerciseapp.ui.viewmodels.ExerciseViewModel
-import com.example.exerciseapp.ui.viewmodels.WorkoutViewModel
 
 object HomeDestination : NavigationDestination {
     override val route = "exercise_screen"
     override val titleRes = R.string.exercise_screen_title
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseScreen (
     modifier: Modifier = Modifier,
     navigateToWorkout: () -> Unit,
     navigateToProgram: () -> Unit,
     navigateToExerciseList: (Int) -> Unit,
-//    exerciseViewModel: ExerciseViewModel = ExerciseViewModel(),
-    workoutViewModel: WorkoutViewModel = WorkoutViewModel()
+    exerciseViewModel: ExerciseViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    // Collecting states from ViewModel
-    val workoutList by workoutViewModel.workoutsList.collectAsState()
-    val exerciseViewModel = remember { ExerciseViewModel(workoutList) }
-
     val searchText by exerciseViewModel.searchText.collectAsState()
     val isSearching by exerciseViewModel.isSearching.collectAsState()
-    val exerciseList by exerciseViewModel.exercisesList.collectAsState()
+    val exerciseList by exerciseViewModel.exerciseList.collectAsState()
     val showList by exerciseViewModel.showList.collectAsState()
+    val muscleGroupList by exerciseViewModel.muscleGroupList.collectAsState()
+
     Scaffold(
         topBar = {
             TopSearchBar(
@@ -79,58 +72,59 @@ fun ExerciseScreen (
             )
         },
         bottomBar = {
-            BottomNavigation()
+            BottomNavigation(
+                navigateToWorkout = navigateToWorkout,
+                navigateToProgram = navigateToProgram
+            )
         }
     ){ innerPadding ->
-        ExerciseBody(
-            workoutList = workoutList,
-            modifier = modifier.fillMaxSize(),
-            contentPadding = innerPadding,
-            onSelected = exerciseViewModel::onToggleList,
-            onBack = exerciseViewModel::onBackPressed,
-            showList = showList
-        )
+        if(showList){
+            ListBody(
+                exerciseList = exerciseList,
+                contentPadding = innerPadding,
+                onSelected = navigateToExerciseList
+            )
+        } else{
+            ExerciseBody(
+                muscleGroupList = muscleGroupList,
+                modifier = modifier.fillMaxSize(),
+                contentPadding = innerPadding,
+                onSelected = navigateToExerciseList,
+            )
+        }
     }
 }
 
 @Composable
 private fun ExerciseBody(
-    workoutList: List<Workout>,
+    muscleGroupList: List<MuscleGroup>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    onSelected: (Int) -> Unit = {},
-    onBack: () -> Unit = {},
-    showList: Boolean
+    onSelected: (Int) -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
-        if (showList) {
-           // navigate to ListScreen
-            // canAdd = false
-        } else {
-            // Display Workouts List
-            LazyColumn(
-                modifier = modifier,
-                contentPadding = contentPadding
-            ) {
-                items(workoutList) { workout ->
-                    WorkoutCard(
-                        workout = workout,
-                        modifier = Modifier
-                            .padding(dimensionResource(id = R.dimen.padding_xsmall))
-                            .clickable { onSelected(workout.id) }
-                    )
-                }
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = contentPadding
+        ) {
+            items(muscleGroupList) { muscleGroup ->
+                MuscleGroupCard(
+                    muscleGroup = muscleGroup,
+                    modifier = Modifier
+                        .padding(dimensionResource(id = R.dimen.padding_xsmall))
+                        .clickable { onSelected(muscleGroup.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun WorkoutCard(
-    workout: Workout,
+private fun MuscleGroupCard(
+    muscleGroup: MuscleGroup,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -143,12 +137,12 @@ private fun WorkoutCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = workout.image),
-                contentDescription = workout.name
+                painter = painterResource(id = muscleGroup.image),
+                contentDescription = muscleGroup.name
             )
 
             Text(
-                text = workout.name,
+                text = muscleGroup.name,
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
@@ -166,26 +160,36 @@ private fun WorkoutCard(
 
 @Preview(showBackground = true)
 @Composable
-fun ExerciseListPreview() {
-    val exercise =
-        Exercise(
-            id = 1,
-            name = "Bench Press",
-            muscleGroup = MuscleGroup(
+fun MuscleGroupCardPreview() {
+    val muscleGroup = MuscleGroup(
                 id = 1,
                 name = "Abs",
                 image = R.drawable.abs,
             )
-        )
-
     ExerciseAppTheme {
-        ExerciseCard(exercise)
+        MuscleGroupCard(muscleGroup)
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun ExerciseScreenPreview () {
+    val muscleGroupList = listOf(
+        MuscleGroup(
+            id = 1,
+            name = "Abs",
+            image = R.drawable.abs,
+        ),MuscleGroup(
+            id = 2,
+            name = "Chest",
+            image = R.drawable.chest,
+        ),MuscleGroup(
+            id = 3,
+            name = "Legs",
+            image = R.drawable.legs,
+        )
+    )
     ExerciseAppTheme {
-        ExerciseScreen()
+        ExerciseBody(muscleGroupList)
     }
 }
