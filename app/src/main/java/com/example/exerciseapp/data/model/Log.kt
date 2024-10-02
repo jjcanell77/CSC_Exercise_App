@@ -1,3 +1,4 @@
+// Log.kt
 package com.example.exerciseapp.data.model
 
 import androidx.room.Entity
@@ -21,6 +22,5 @@ data class Log(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val exerciseId: Int,
-    val notes: String = "",
-    val sets: MutableList<ExerciseSet> = mutableListOf()
+    val notes: String = ""
 )

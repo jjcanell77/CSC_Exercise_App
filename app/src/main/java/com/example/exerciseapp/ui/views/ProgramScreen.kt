@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.exerciseapp.BottomNavigation
 import com.example.exerciseapp.R
 import com.example.exerciseapp.TopAppBar
@@ -45,8 +46,7 @@ object ProgramDestination : NavigationDestination {
 
 @Composable
 fun ProgramScreen (
-    navigateToWorkout: () -> Unit,
-    navigateToExercise: () -> Unit,
+    navController: NavController,
     navigateToExerciseList: (Int) -> Unit,
     modifier: Modifier = Modifier,
     programViewModel: ProgramViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -64,8 +64,7 @@ fun ProgramScreen (
         },
         bottomBar = {
             BottomNavigation(
-                navigateToWorkout = navigateToWorkout,
-                navigateToExercise = navigateToExercise
+                navController = navController
             )
         }
     ){ innerPadding ->

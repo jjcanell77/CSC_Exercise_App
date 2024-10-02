@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.exerciseapp.BottomNavigation
 import com.example.exerciseapp.TopIcon
 import com.example.exerciseapp.R
@@ -57,9 +58,7 @@ object ExerciseListDestination : NavigationDestination {
 fun ExerciseListScreen(
     modifier: Modifier = Modifier,
     workoutId: Int = 0,
-    navigateToExercise: () -> Unit,
-    navigateToWorkout: () -> Unit,
-    navigateToProgram: () -> Unit,
+    navController: NavController,
     onNavigateUp: () -> Unit,
     navigateToLogEntry: (Int) -> Unit,
     exerciseListViewModel: ExerciseListViewModel = viewModel(
@@ -82,9 +81,7 @@ fun ExerciseListScreen(
         },
         bottomBar = {
             BottomNavigation(
-                navigateToExercise = navigateToExercise,
-                navigateToWorkout = navigateToWorkout,
-                navigateToProgram = navigateToProgram,
+                navController = navController,
             )
         }
     ){ innerPadding ->

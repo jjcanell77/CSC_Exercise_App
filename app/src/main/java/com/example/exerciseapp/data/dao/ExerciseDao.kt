@@ -1,5 +1,7 @@
 package com.example.exerciseapp.data.dao
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.MuscleGroup
@@ -8,6 +10,9 @@ import com.example.exerciseapp.data.model.MuscleGroup
 interface ExerciseDao {
     @Query("SELECT * FROM muscle_group")
     suspend fun getAllMuscleGroups(): List<MuscleGroup>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(muscleGroups: List<MuscleGroup>)
 
     @Query("SELECT * FROM exercises")
     suspend fun getAllExercises(): List<Exercise>

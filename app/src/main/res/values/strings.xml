@@ -8,4 +8,5 @@
     <string name="exercise_screen_title">Exercise\n</string>
     <string name="exercise_list_screen">Exercise List</string>
     <string name="workout_entry_screen">New Workout</string>
+    <string name="muscle_group_screen">Exercise By Muscle Group</string>
 </resources>

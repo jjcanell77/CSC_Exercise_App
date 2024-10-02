@@ -1,5 +1,6 @@
 package com.example.exerciseapp.ui.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exerciseapp.data.model.Exercise
@@ -11,22 +12,13 @@ import kotlinx.coroutines.launch
 class ExerciseViewModel(
     private val exerciseRepository: ExerciseRepository
 ) : ViewModel() {
-    // States
     val searchText = MutableStateFlow("")
     val isSearching = MutableStateFlow(false)
     val exerciseList = MutableStateFlow<List<Exercise>>(emptyList())
     val showList = MutableStateFlow(false)
-    val muscleGroupList = MutableStateFlow<List<MuscleGroup>>(emptyList())
 
     init {
-        getMuscleGroups()
         getExercises()
-    }
-
-    private fun getMuscleGroups() {
-        viewModelScope.launch {
-            muscleGroupList.value = exerciseRepository.getAllMuscleGroups()
-        }
     }
 
     fun getExercises() {
@@ -35,6 +27,9 @@ class ExerciseViewModel(
         }
     }
 
+    fun getImageResourceId(context: Context, imageName: String): Int {
+        return context.resources.getIdentifier(imageName, "drawable", context.packageName)
+    }
 
     fun onSearchTextChange(newText: String) {
         searchText.value = newText

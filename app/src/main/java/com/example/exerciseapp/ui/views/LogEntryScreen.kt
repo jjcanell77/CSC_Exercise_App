@@ -41,6 +41,7 @@
     import androidx.compose.ui.tooling.preview.Preview
     import androidx.compose.ui.unit.dp
     import androidx.lifecycle.viewmodel.compose.viewModel
+    import androidx.navigation.NavController
     import com.example.exerciseapp.BottomNavigation
     import com.example.exerciseapp.TopIcon
     import com.example.exerciseapp.R
@@ -61,13 +62,10 @@
         val routeWithArgs = "$route/{$exerciseIdArg}"
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun LogEntryScreen(
         modifier: Modifier = Modifier,
-        navigateToExercise: () -> Unit,
-        navigateToWorkout: () -> Unit,
-        navigateToProgram: () -> Unit,
+        navController: NavController,
         onNavigateUp: () -> Unit,
         exerciseId: Int = 0,
         logViewModel: LogViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -78,6 +76,8 @@
         val logDetails by logViewModel.logDetails.collectAsState()
         val isEditing by logViewModel.isEditing.collectAsState()
         val sets by logViewModel.sets.collectAsState()
+        val weightInput by logViewModel.weightInput.collectAsState()
+        val repsInput by logViewModel.repsInput.collectAsState()
 
         LaunchedEffect(exerciseId) {
             logViewModel.loadExercise(exerciseId)
@@ -90,14 +90,18 @@
                 TopAppBar(
                     title = exercise?.name ?: stringResource(R.string.log_entry_screen),
                     scrollBehavior = scrollBehavior,
-                    leftIcon ={ TopIcon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", onClick = {onNavigateUp()}) },
+                    leftIcon = {
+                        TopIcon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            onClick = onNavigateUp
+                        )
+                    },
                 )
             },
             bottomBar = {
                 BottomNavigation(
-                    navigateToExercise = navigateToExercise,
-                    navigateToWorkout = navigateToWorkout,
-                    navigateToProgram = navigateToProgram,
+                    navController = navController
                 )
             }
         ) { innerPadding ->
@@ -106,8 +110,11 @@
                 exercise = exercise,
                 previousLog = previousLog,
                 sets = sets,
+                weightInput = weightInput,
+                repsInput = repsInput,
                 isEditing = isEditing,
-                onSetDetailsChange = logViewModel::onSetDetailsChange,
+                onWeightChange = logViewModel::onWeightChange,
+                onRepsChange = logViewModel::onRepsChange,
                 onNotesChange = logViewModel::onNotesChange,
                 onSubmitSet = logViewModel::submitSet,
                 onSubmitLog = logViewModel::submitLog,
@@ -125,8 +132,11 @@
         exercise: Exercise?,
         previousLog: LogWithSets?,
         sets: List<ExerciseSet>,
+        weightInput: String,
+        repsInput: String,
         isEditing: Boolean,
-        onSetDetailsChange: (String, String) -> Unit,
+        onWeightChange: (String) -> Unit,
+        onRepsChange: (String) -> Unit,
         onNotesChange: (String) -> Unit,
         onSubmitSet: () -> Unit,
         onSubmitLog: () -> Unit,
@@ -136,10 +146,6 @@
         modifier: Modifier = Modifier,
         contentPadding: PaddingValues = PaddingValues(0.dp)
     ) {
-        var weightInput by remember { mutableStateOf("") }
-        var repsInput by remember { mutableStateOf("") }
-        val currentSetIndex = if (isEditing) sets.lastIndex else -1
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.padding(contentPadding)
@@ -155,20 +161,14 @@
             ) {
                 OutlinedTextField(
                     value = weightInput,
-                    onValueChange = {
-                        weightInput = it
-                        onSetDetailsChange(weightInput, repsInput)
-                    },
+                    onValueChange = onWeightChange,
                     label = { Text("Weight") },
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 OutlinedTextField(
                     value = repsInput,
-                    onValueChange = {
-                        repsInput = it
-                        onSetDetailsChange(weightInput, repsInput)
-                    },
+                    onValueChange = onRepsChange,
                     label = { Text("Reps") },
                     modifier = Modifier.weight(1f)
                 )
@@ -222,11 +222,13 @@
             }
 
             // Submit Log Button
-            Button(
-                onClick = onSubmitLog,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text(text = "Submit Log")
+            if (sets.isNotEmpty()) {
+                Button(
+                    onClick = onSubmitLog,
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text(text = "Submit Log")
+                }
             }
 
             // Previous Workout Sets
@@ -245,7 +247,6 @@
             }
         }
     }
-
 
     @Composable
     fun SetRow(
@@ -281,18 +282,5 @@
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "${set.weight} kg x ${set.reps} reps")
-        }
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun LogEntryScreenPreview () {
-        ExerciseAppTheme {
-            LogEntryScreen(
-                navigateToExercise = {  },
-                navigateToProgram = {  },
-                navigateToWorkout = {  },
-                onNavigateUp = {  }
-            )
         }
     }

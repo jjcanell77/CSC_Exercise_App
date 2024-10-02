@@ -7,14 +7,17 @@ import com.example.exerciseapp.data.model.LogWithSets
 
 class LogRepository(private val logDao: LogDao) {
 
-    suspend fun getLatestLogForExercise(exerciseId: Int): LogWithSets? {
-        return logDao.getLatestLogWithSets(exerciseId)
+    suspend fun insertLog(log: Log): Long {
+        return logDao.insertLog(log)
     }
 
-    suspend fun insertLogWithSets(log: Log, sets: List<ExerciseSet>) {
-        val logId = logDao.insertLog(log).toInt()
+    suspend fun insertExerciseSets(sets: List<ExerciseSet>) {
         sets.forEach { set ->
-            logDao.insertExerciseSet(set.copy(logId = logId))
+            logDao.insertExerciseSet(set)
         }
+    }
+
+    suspend fun getLatestLogForExercise(exerciseId: Int): LogWithSets? {
+        return logDao.getLatestLogWithSets(exerciseId)
     }
 }

@@ -18,8 +18,9 @@ import androidx.room.PrimaryKey
     indices = [Index(value = ["logId"])]
 )
 data class ExerciseSet(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val logId: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val logId: Int,
     val weight: Double = 0.0,
     val reps: Int = 0
 )

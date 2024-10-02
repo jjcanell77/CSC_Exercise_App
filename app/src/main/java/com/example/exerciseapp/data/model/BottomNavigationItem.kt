@@ -1,8 +1,9 @@
 package com.example.exerciseapp.data.model
 
-data class  BottomNavigationItem(
+data class BottomNavigationItem(
     val title: String,
     val selectedIcon: Int,
     val unSelectedIcon: Int,
-    val navigate: () -> Unit
+    val navigate: () -> Unit,
+    val route: String
 )
