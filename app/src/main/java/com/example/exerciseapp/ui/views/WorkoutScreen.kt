@@ -59,7 +59,7 @@ object WorkoutDestination : NavigationDestination {
 @Composable
 fun WorkoutScreen (
     navController: NavController,
-    navigateToWorkoutEntry: () -> Unit,
+    navigateToWorkoutEntry: (String) -> Unit,
     navigateToExerciseList: (Int) -> Unit,
     modifier: Modifier = Modifier,
     workoutViewModel: WorkoutViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -74,7 +74,11 @@ fun WorkoutScreen (
     topBar = {
         TopAppBar(
             title = stringResource(R.string.workout_screen_title),
-            rightIcon ={ TopIcon(imageVector = Icons.Filled.Edit, contentDescription = "Edit", onClick = {isEdit = !isEdit})},
+            rightIcon ={
+                if(workoutList.isNotEmpty()){
+                    TopIcon(imageVector = Icons.Filled.Edit, contentDescription = "Edit", onClick = {isEdit = !isEdit})
+                }
+            },
             leftIcon = {TopIcon(imageVector = Icons.Filled.Add, contentDescription = "Add", onClick = {showWorkoutModal = true})},
             scrollBehavior = scrollBehavior
         )
@@ -94,20 +98,16 @@ fun WorkoutScreen (
         )
         if (showWorkoutModal) {
             WorkoutModal(
-                currentName = "", // Empty since it's a new workout
+                currentName = "",
                 onConfirm = { newName ->
                     showWorkoutModal = false
-                    // Store the new workout name in the ViewModel
-                    workoutViewModel.newWorkoutName = newName
-                    // Navigate to WorkoutEntryScreen
-                    navigateToWorkoutEntry()
+                    navigateToWorkoutEntry(newName)
                 },
                 onDismiss = {
                     showWorkoutModal = false
                 }
             )
         }
-
     }
 }
 
@@ -159,7 +159,7 @@ fun WorkoutCard(
             modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.padding_medium)),
             verticalAlignment = Alignment.CenterVertically
         ){
-            if (isEdit){
+            if (isEdit and workout.isCustom){
                 Icon(
                     modifier = Modifier.clickable { workoutViewModel.deleteWorkout(workout)},
                     imageVector = Icons.Outlined.Clear,

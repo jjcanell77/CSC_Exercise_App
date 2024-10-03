@@ -4,21 +4,23 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exerciseapp.data.model.Exercise
-import com.example.exerciseapp.data.model.Workout
 import com.example.exerciseapp.data.repository.ExerciseRepository
 import com.example.exerciseapp.data.repository.WorkoutRepository
+import com.example.exerciseapp.ui.views.ExerciseListDestination
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ExerciseListViewModel(
-    private val workoutRepository: WorkoutRepository,
-    private val exerciseRepository: ExerciseRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val workoutRepository: WorkoutRepository
 ) : ViewModel() {
-    val exercises = MutableStateFlow<List<Exercise>>(emptyList())
-    val workout = MutableStateFlow<Workout?>(null)
+    private val workoutId: Int = checkNotNull(savedStateHandle[ExerciseListDestination.workoutIdArg])
+    private val _exerciseList = MutableStateFlow<List<Exercise>>(emptyList())
+    private val _title = MutableStateFlow<String>("")
 
-    private val workoutId: Int = savedStateHandle.get<Int>("workoutId") ?: 0
+    val exerciseList: StateFlow<List<Exercise>> = _exerciseList
+    val title: StateFlow<String> = _title
 
     init {
         loadExercises()
@@ -27,8 +29,8 @@ class ExerciseListViewModel(
     private fun loadExercises() {
         viewModelScope.launch {
             val workoutWithExercises = workoutRepository.getWorkoutWithExercises(workoutId)
-            workout.value = workoutWithExercises.workout
-            exercises.value = workoutWithExercises.exercises
+            _title.value = workoutWithExercises.workout.name
+            _exerciseList.value = workoutWithExercises.exercises
         }
     }
 }

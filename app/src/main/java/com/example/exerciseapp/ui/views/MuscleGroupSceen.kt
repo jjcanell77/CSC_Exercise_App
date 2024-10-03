@@ -10,7 +10,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.exerciseapp.BottomNavigation
@@ -19,10 +18,10 @@ import com.example.exerciseapp.TopAppBar
 import com.example.exerciseapp.TopIcon
 import com.example.exerciseapp.ui.AppViewModelProvider
 import com.example.exerciseapp.ui.navigation.NavigationDestination
-import com.example.exerciseapp.ui.viewmodels.ExerciseListViewModel
+import com.example.exerciseapp.ui.viewmodels.MuscleGroupViewModel
 
-object MuscleGroupSceenDestination : NavigationDestination {
-    override val route = "exercise_list_screen"
+object MuscleGroupScreenDestination : NavigationDestination {
+    override val route = "muscle_group_screen"
     override val titleRes = R.string.muscle_group_screen
     const val muscleGroupIdArg = "muscleGroupId"
     val routeWithArgs = "$route/{$muscleGroupIdArg}"
@@ -30,26 +29,23 @@ object MuscleGroupSceenDestination : NavigationDestination {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MuscleGroupSceen(
+fun MuscleGroupScreen(
     modifier: Modifier = Modifier,
-    muscleGroupId: Int = 0,
+    muscleGroupId: Int? = null,
     navController: NavController,
     onNavigateUp: () -> Unit,
     navigateToLogEntry: (Int) -> Unit,
-    exerciseListViewModel: ExerciseListViewModel = viewModel(
-        factory = AppViewModelProvider.Factory,
-        key = "ExerciseListViewModel-$muscleGroupId"
-    )
+    muscleGroupViewModel: MuscleGroupViewModel = viewModel(factory = AppViewModelProvider.Factory,)
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val exerciseList by exerciseListViewModel.exercises.collectAsState()
-    val workout by exerciseListViewModel.workout.collectAsState()
+    val exerciseList by muscleGroupViewModel.exerciseList.collectAsState()
+    val title by muscleGroupViewModel.title.collectAsState()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = workout?.name ?: stringResource(R.string.exercise_list_screen),
+                title = title,
                 scrollBehavior = scrollBehavior,
                 leftIcon ={ TopIcon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", onClick = {onNavigateUp()}) },
             )

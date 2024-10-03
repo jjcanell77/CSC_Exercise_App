@@ -11,6 +11,7 @@ import com.example.exerciseapp.ui.viewmodels.ExerciseViewModel
 import com.example.exerciseapp.ui.viewmodels.LogViewModel
 import com.example.exerciseapp.ui.viewmodels.MuscleGroupViewModel
 import com.example.exerciseapp.ui.viewmodels.ProgramViewModel
+import com.example.exerciseapp.ui.viewmodels.WorkoutEntryViewModel
 import com.example.exerciseapp.ui.viewmodels.WorkoutViewModel
 
 object AppViewModelProvider {
@@ -28,7 +29,14 @@ object AppViewModelProvider {
         }
         initializer {
             WorkoutViewModel(
-                workoutRepository = myApplication().container.workoutRepository
+                workoutRepository = myApplication().container.workoutRepository,
+            )
+        }
+        initializer {
+            WorkoutEntryViewModel(
+                workoutRepository = myApplication().container.workoutRepository,
+                exerciseRepository = myApplication().container.exerciseRepository,
+                savedStateHandle = createSavedStateHandle()
             )
         }
         initializer {
@@ -39,7 +47,6 @@ object AppViewModelProvider {
         initializer {
             ExerciseListViewModel(
                 workoutRepository = myApplication().container.workoutRepository,
-                exerciseRepository = myApplication().container.exerciseRepository,
                 savedStateHandle = createSavedStateHandle()
             )
         }
@@ -49,7 +56,6 @@ object AppViewModelProvider {
                 exerciseRepository = myApplication().container.exerciseRepository
             )
         }
-        // Add other ViewModels as needed
     }
 }
 

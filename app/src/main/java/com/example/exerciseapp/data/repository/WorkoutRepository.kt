@@ -23,7 +23,7 @@ class WorkoutRepository(
     }
 
     suspend fun getWorkoutWithExercises(workoutId: Int): WorkoutWithExercises {
-        return workoutDao.getWorkoutWithExercises(workoutId)
+        return workoutExerciseDao.getWorkoutWithExercises(workoutId)
     }
 
     suspend fun insertWorkoutWithExercises(workout: Workout, exerciseIds: List<Int>) {
@@ -37,6 +37,10 @@ class WorkoutRepository(
 
     suspend fun getNonCustomWorkouts(): List<Workout> {
         return workoutDao.getWorkoutsByCustomFlag(isCustom = false)
+    }
+
+    suspend fun getCustomWorkouts(): List<Workout> {
+        return workoutDao.getWorkoutsByCustomFlag(isCustom = true)
     }
 
     suspend fun deleteWorkout(workout: Workout) {

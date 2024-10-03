@@ -3,6 +3,7 @@ package com.example.exerciseapp.data.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -14,15 +15,14 @@ interface WorkoutDao {
     @Insert
     suspend fun insertWorkout(workout: Workout): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllWorkouts(workouts: List<Workout>)
+
     @Delete
     suspend fun deleteWorkout(workout: Workout)
 
     @Update
     suspend fun updateWorkout(workout: Workout)
-
-    @Transaction
-    @Query("SELECT * FROM workouts WHERE id = :workoutId")
-    suspend fun getWorkoutWithExercises(workoutId: Int): WorkoutWithExercises
 
     @Query("SELECT * FROM workouts")
     suspend fun getAllWorkouts(): List<Workout>

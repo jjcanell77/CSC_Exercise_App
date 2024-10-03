@@ -7,6 +7,7 @@ import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.MuscleGroup
 import com.example.exerciseapp.data.repository.ExerciseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ExerciseViewModel(
@@ -17,8 +18,17 @@ class ExerciseViewModel(
     val exerciseList = MutableStateFlow<List<Exercise>>(emptyList())
     val showList = MutableStateFlow(false)
 
+    private val _muscleGroupList = MutableStateFlow<List<MuscleGroup>>(emptyList())
+    val muscleGroupList: StateFlow<List<MuscleGroup>> = _muscleGroupList
+
     init {
-        getExercises()
+        getMuscleGroups()
+    }
+
+    private fun getMuscleGroups() {
+        viewModelScope.launch {
+            _muscleGroupList.value = exerciseRepository.getAllMuscleGroups()
+        }
     }
 
     fun getExercises() {

@@ -15,8 +15,8 @@ import com.example.exerciseapp.ui.views.ExerciseScreen
 import com.example.exerciseapp.ui.views.ProgramDestination
 import com.example.exerciseapp.ui.views.LogEntryDestination
 import com.example.exerciseapp.ui.views.LogEntryScreen
-import com.example.exerciseapp.ui.views.MuscleGroupSceen
-import com.example.exerciseapp.ui.views.MuscleGroupSceenDestination
+import com.example.exerciseapp.ui.views.MuscleGroupScreenDestination
+import com.example.exerciseapp.ui.views.MuscleGroupScreen
 import com.example.exerciseapp.ui.views.ProgramScreen
 import com.example.exerciseapp.ui.views.WorkoutDestination
 import com.example.exerciseapp.ui.views.WorkoutEntryScreen
@@ -36,7 +36,8 @@ fun AppNavHost(
         composable(route = HomeDestination.route) {
             ExerciseScreen(
                 navController = navController,
-                navigateToExerciseList = { navController.navigate("${ExerciseListDestination.route}/${it}") }
+                navigateToExerciseList = { navController.navigate("${ExerciseListDestination.route}/${it}") },
+                navigateToMuscleGroupScreen = {navController.navigate("${MuscleGroupScreenDestination.route}/${it}") }
             )
         }
         composable(route = ProgramDestination.route) {
@@ -48,12 +49,15 @@ fun AppNavHost(
         composable(route = WorkoutDestination.route) {
             WorkoutScreen(
                 navController = navController,
-                navigateToWorkoutEntry = { navController.navigate(WorkoutEntryScreenDestination.route) },
+                navigateToWorkoutEntry = { navController.navigate("${WorkoutEntryScreenDestination.route}/${it}") },
                 navigateToExerciseList = { navController.navigate("${ExerciseListDestination.route}/${it}") }
             )
         }
         composable(
-            route = WorkoutEntryScreenDestination.route
+            route = WorkoutEntryScreenDestination.routeWithArgs,
+            arguments = listOf(navArgument(WorkoutEntryScreenDestination.workoutNameArg) {
+                type = NavType.StringType
+            })
         ) {
             WorkoutEntryScreen(
                 navigateToWorkout = { navController.navigate(WorkoutDestination.route) },
@@ -61,19 +65,19 @@ fun AppNavHost(
             )
         }
         composable(
-            route = MuscleGroupSceenDestination.routeWithArgs,
-            arguments = listOf(navArgument(MuscleGroupSceenDestination.muscleGroupIdArg) {
+            route = MuscleGroupScreenDestination.routeWithArgs,
+            arguments = listOf(navArgument(MuscleGroupScreenDestination.muscleGroupIdArg) {
                 type = NavType.IntType
             })
         ) {
-            MuscleGroupSceen(
+            MuscleGroupScreen(
                 navController = navController,
                 navigateToLogEntry = { navController.navigate("${LogEntryDestination.route}/${it}") },
                 onNavigateUp = { navController.navigateUp() }
             )
         }
         composable(
-            route = ExerciseListDestination.routeWithArgs,
+            route = ExerciseListDestination.routeWithWorkoutId,
             arguments = listOf(navArgument(ExerciseListDestination.workoutIdArg) {
                 type = NavType.IntType
             })

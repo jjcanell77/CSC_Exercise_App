@@ -49,15 +49,15 @@ object HomeDestination : NavigationDestination {
 fun ExerciseScreen (
     modifier: Modifier = Modifier,
     navController: NavController,
+    navigateToMuscleGroupScreen: (Int) -> Unit,
     navigateToExerciseList: (Int) -> Unit,
     exerciseViewModel: ExerciseViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    muscleGroupViewModel: MuscleGroupViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val searchText by exerciseViewModel.searchText.collectAsState()
     val isSearching by exerciseViewModel.isSearching.collectAsState()
     val exerciseList by exerciseViewModel.exerciseList.collectAsState()
     val showList by exerciseViewModel.showList.collectAsState()
-    val muscleGroupList by muscleGroupViewModel.muscleGroupList.collectAsState()
+    val muscleGroupList by exerciseViewModel.muscleGroupList.collectAsState()
 
     Scaffold(
         topBar = {
@@ -90,7 +90,7 @@ fun ExerciseScreen (
                 muscleGroupList = muscleGroupList,
                 modifier = modifier.fillMaxSize(),
                 contentPadding = innerPadding,
-                onSelected = navigateToExerciseList,
+                onSelected = navigateToMuscleGroupScreen
             )
         }
     }

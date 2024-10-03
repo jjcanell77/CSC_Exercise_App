@@ -17,7 +17,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
     }
 
     override val exerciseRepository: ExerciseRepository by lazy {
-        ExerciseRepository(database.exerciseDao())
+        ExerciseRepository(database.exerciseDao(), database.muscleGroupDao())
     }
 
     override val workoutRepository: WorkoutRepository by lazy {

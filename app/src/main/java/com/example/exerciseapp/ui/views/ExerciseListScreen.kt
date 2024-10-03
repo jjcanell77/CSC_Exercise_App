@@ -51,30 +51,27 @@ object ExerciseListDestination : NavigationDestination {
     override val route = "exercise_list_screen"
     override val titleRes = R.string.exercise_list_screen
     const val workoutIdArg = "workoutId"
-    val routeWithArgs = "$route/{$workoutIdArg}"
+    val routeWithWorkoutId = "$route/{$workoutIdArg}"
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseListScreen(
     modifier: Modifier = Modifier,
-    workoutId: Int = 0,
     navController: NavController,
     onNavigateUp: () -> Unit,
     navigateToLogEntry: (Int) -> Unit,
-    exerciseListViewModel: ExerciseListViewModel = viewModel(
-        factory = AppViewModelProvider.Factory,
-        key = "ExerciseListViewModel-$workoutId"
-    )
+    exerciseListViewModel: ExerciseListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val exerciseList by exerciseListViewModel.exercises.collectAsState()
-    val workout by exerciseListViewModel.workout.collectAsState()
+    val exercises by exerciseListViewModel.exerciseList.collectAsState()
+    val title by exerciseListViewModel.title.collectAsState()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = workout?.name ?: stringResource(R.string.exercise_list_screen),
+                title = title,
                 scrollBehavior = scrollBehavior,
                 leftIcon ={ TopIcon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", onClick = {onNavigateUp()}) },
             )
@@ -86,7 +83,7 @@ fun ExerciseListScreen(
         }
     ){ innerPadding ->
         ListBody(
-            exerciseList = exerciseList,
+            exerciseList = exercises,
             contentPadding = innerPadding,
             onSelected = navigateToLogEntry
         )
@@ -135,7 +132,7 @@ fun ExerciseCard(
             modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.padding_medium)),
             verticalAlignment = Alignment.CenterVertically
         ){
-            if (isEdit){
+            if (isEdit and exercise.isCustom){
                 Icon(
                     imageVector = Icons.Outlined.Clear,
                     contentDescription = "Clear"
