@@ -53,7 +53,8 @@ object AppViewModelProvider {
         initializer {
             LogViewModel(
                 logRepository = myApplication().container.logRepository,
-                exerciseRepository = myApplication().container.exerciseRepository
+                exerciseRepository = myApplication().container.exerciseRepository,
+                savedStateHandle = createSavedStateHandle()
             )
         }
     }

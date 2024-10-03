@@ -1,158 +1,147 @@
 package com.example.exerciseapp.ui.viewmodels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.ExerciseSet
 import com.example.exerciseapp.data.model.Log
 import com.example.exerciseapp.data.model.LogWithSets
 import com.example.exerciseapp.data.repository.ExerciseRepository
 import com.example.exerciseapp.data.repository.LogRepository
+import com.example.exerciseapp.ui.views.LogEntryDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LogViewModel(
     private val logRepository: LogRepository,
-    private val exerciseRepository: ExerciseRepository
-) : ViewModel() {
+    private val exerciseRepository: ExerciseRepository,
+    savedStateHandle: SavedStateHandle,
+    ) : ViewModel() {
 
-    // Holds the Exercise being logged
-    val exercise = MutableStateFlow<Exercise?>(null)
+    private val exerciseId: Int = checkNotNull(savedStateHandle[LogEntryDestination.exerciseIdArg])
+    private val _uiState = MutableStateFlow(LogEntryUiState())
 
-    // Holds the previous Log with its associated sets
-    val previousLog = MutableStateFlow<LogWithSets?>(null)
+    val uiState: StateFlow<LogEntryUiState> get() = _uiState
 
-    // Holds the current Log being created (without sets)
-    val logDetails = MutableStateFlow(Log(exerciseId = 0, notes = ""))
+    init {
+        loadData(exerciseId)
+    }
 
-    // Holds the list of ExerciseSets associated with the current Log
-    val sets = MutableStateFlow<MutableList<ExerciseSet>>(mutableListOf())
-
-    // State management for editing sets
-    private val _isEditing = MutableStateFlow(false)
-    val isEditing: StateFlow<Boolean> get() = _isEditing
-
-    // Index of the set currently being edited
-    private val _currentSetIndex = MutableStateFlow(-1)
-
-    // Input fields for weight and reps
-    val weightInput = MutableStateFlow("")
-    val repsInput = MutableStateFlow("")
-
-    // Load the Exercise data
-    fun loadExercise(exerciseId: Int) {
+    private fun loadData(exerciseId: Int) {
         viewModelScope.launch {
-            val exerciseData = exerciseRepository.getExerciseById(exerciseId)
-            exercise.value = exerciseData
-            logDetails.value = logDetails.value.copy(exerciseId = exerciseId)
+            val exercise = exerciseRepository.getExerciseById(exerciseId)
+            val previousLog = logRepository.getLatestLogForExercise(exerciseId)
+            _uiState.value = _uiState.value.copy(
+                exerciseName = exercise.name,
+                previousLog = previousLog,
+                logDetails = _uiState.value.logDetails.copy(exerciseId = exerciseId)
+            )
         }
     }
 
-    // Load the previous Log for the Exercise
-    fun loadPreviousLog(exerciseId: Int) {
+    private fun loadPreviousLog(exerciseId: Int) {
         viewModelScope.launch {
-            previousLog.value = logRepository.getLatestLogForExercise(exerciseId)
+            val previousLog = logRepository.getLatestLogForExercise(exerciseId)
+            _uiState.value = _uiState.value.copy(previousLog = previousLog)
         }
     }
 
-    // Handle changes to the weight input field
     fun onWeightChange(weight: String) {
-        weightInput.value = weight
+        _uiState.value = _uiState.value.copy(weightInput = weight)
     }
 
-    // Handle changes to the reps input field
     fun onRepsChange(reps: String) {
-        repsInput.value = reps
+        _uiState.value = _uiState.value.copy(repsInput = reps)
     }
 
-    // Handle changes to the notes input field
     fun onNotesChange(newNotes: String) {
-        logDetails.value = logDetails.value.copy(notes = newNotes)
+        _uiState.value = _uiState.value.copy(
+            logDetails = _uiState.value.logDetails.copy(notes = newNotes)
+        )
     }
 
-    // Add or update the current set
     fun submitSet() {
-        val weightValue = weightInput.value.toDoubleOrNull() ?: 0.0
-        val repsValue = repsInput.value.toIntOrNull() ?: 0
+        val weightValue = _uiState.value.weightInput.toDoubleOrNull()
+        val repsValue = _uiState.value.repsInput.toIntOrNull()
 
+        if (weightValue == null || repsValue == null) {
+            return
+        }
         val newSet = ExerciseSet(
             logId = 0, // Will be set when the log is inserted
             weight = weightValue,
             reps = repsValue
         )
-
-        val currentSets = sets.value.toMutableList()
-        val setIndex = _currentSetIndex.value
-
+        val currentSets = _uiState.value.sets.toMutableList()
+        val setIndex = _uiState.value.currentSetIndex
         if (setIndex >= 0 && setIndex < currentSets.size) {
-            // Update existing set
             currentSets[setIndex] = newSet
         } else {
-            // Add new set
             currentSets.add(newSet)
         }
-
-        sets.value = currentSets
-
-        // Reset input fields and editing state
-        weightInput.value = ""
-        repsInput.value = ""
-        _currentSetIndex.value = -1
-        _isEditing.value = false
+        _uiState.value = _uiState.value.copy(
+            sets = currentSets,
+            weightInput = "",
+            repsInput = "",
+            currentSetIndex = -1,
+            isEditing = false
+        )
     }
 
-    // Submit the Log along with its sets to the database
     fun submitLog() {
         viewModelScope.launch {
-            val currentLog = logDetails.value
+            try {
+                val currentLog = _uiState.value.logDetails
+                val logId = logRepository.insertLog(currentLog)
+                val setsToInsert = _uiState.value.sets.map { it.copy(logId = logId.toInt()) }
 
-            // Insert the Log and get its generated ID
-            val logId = logRepository.insertLog(currentLog)
+                logRepository.insertExerciseSets(setsToInsert)
 
-            // Associate the sets with the new logId and insert them
-            val setsToInsert = sets.value.map { it.copy(logId = logId.toInt()) }
+                _uiState.value = _uiState.value.copy(
+                    logDetails = _uiState.value.logDetails.copy(notes = ""),
+                    sets = emptyList(),
+                    weightInput = "",
+                    repsInput = "",
+                    currentSetIndex = -1,
+                    isEditing = false
+                )
 
-            logRepository.insertExerciseSets(setsToInsert)
-
-            // Reset the state after submission
-            logDetails.value = logDetails.value.copy(notes = "")
-            sets.value = mutableListOf()
-            weightInput.value = ""
-            repsInput.value = ""
-            _currentSetIndex.value = -1
-            _isEditing.value = false
-
-            // Reload the previous log to reflect the new entry
-            loadPreviousLog(currentLog.exerciseId)
+                loadPreviousLog(currentLog.exerciseId)
+            } catch (e: Exception) {
+                android.util.Log.e("LogViewModel", e.message.toString())
+            }
         }
     }
 
-    // Start editing a set at the given index
-    fun editSet(index: Int) {
-        val set = sets.value.getOrNull(index)
-        if (set != null) {
-            weightInput.value = set.weight.toString()
-            repsInput.value = set.reps.toString()
-            _currentSetIndex.value = index
-            _isEditing.value = true
-        }
-    }
-
-    // Delete a set from the current list
     fun deleteSet(index: Int) {
-        val currentSets = sets.value.toMutableList()
+        val currentSets = _uiState.value.sets.toMutableList()
         if (index >= 0 && index < currentSets.size) {
             currentSets.removeAt(index)
-            sets.value = currentSets
+            _uiState.value = _uiState.value.copy(sets = currentSets)
         }
     }
 
-    // Cancel editing mode
-    fun cancelEdit() {
-        weightInput.value = ""
-        repsInput.value = ""
-        _currentSetIndex.value = -1
-        _isEditing.value = false
+    fun editSet(index: Int) {
+        val set = _uiState.value.sets.getOrNull(index)
+        if (set != null) {
+            _uiState.value = _uiState.value.copy(
+                weightInput = set.weight.toString(),
+                repsInput = set.reps.toString(),
+                currentSetIndex = index,
+                isEditing = true
+            )
+        }
     }
 }
+
+data class LogEntryUiState(
+    val exerciseName: String = "",
+    val previousLog: LogWithSets? = null,
+    val logDetails: Log = Log(exerciseId = 0, notes = ""),
+    val sets: List<ExerciseSet> = emptyList(),
+    val weightInput: String = "",
+    val repsInput: String = "",
+    val isEditing: Boolean = false,
+    val currentSetIndex: Int = -1
+)

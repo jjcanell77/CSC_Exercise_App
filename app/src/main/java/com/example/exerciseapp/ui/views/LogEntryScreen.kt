@@ -3,13 +3,14 @@
     package com.example.exerciseapp.ui.views
 
     import androidx.compose.foundation.clickable
+    import androidx.compose.foundation.gestures.detectTapGestures
     import androidx.compose.foundation.layout.Arrangement
     import androidx.compose.foundation.layout.Column
     import androidx.compose.foundation.layout.PaddingValues
     import androidx.compose.foundation.layout.Row
     import androidx.compose.foundation.layout.Spacer
+    import androidx.compose.foundation.layout.fillMaxSize
     import androidx.compose.foundation.layout.fillMaxWidth
-    import androidx.compose.foundation.layout.height
     import androidx.compose.foundation.layout.padding
     import androidx.compose.foundation.layout.width
     import androidx.compose.foundation.lazy.LazyColumn
@@ -28,31 +29,29 @@
     import androidx.compose.material3.Text
     import androidx.compose.material3.TopAppBarDefaults
     import androidx.compose.runtime.Composable
-    import androidx.compose.runtime.LaunchedEffect
     import androidx.compose.runtime.collectAsState
     import androidx.compose.runtime.getValue
-    import androidx.compose.runtime.mutableStateOf
-    import androidx.compose.runtime.remember
-    import androidx.compose.runtime.setValue
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
     import androidx.compose.ui.input.nestedscroll.nestedScroll
+    import androidx.compose.ui.input.pointer.pointerInput
+    import androidx.compose.ui.platform.LocalFocusManager
+    import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+    import androidx.compose.ui.res.dimensionResource
     import androidx.compose.ui.res.stringResource
-    import androidx.compose.ui.tooling.preview.Preview
+    import androidx.compose.ui.text.style.TextAlign
     import androidx.compose.ui.unit.dp
     import androidx.lifecycle.viewmodel.compose.viewModel
     import androidx.navigation.NavController
     import com.example.exerciseapp.BottomNavigation
-    import com.example.exerciseapp.TopIcon
     import com.example.exerciseapp.R
     import com.example.exerciseapp.TopAppBar
-    import com.example.exerciseapp.data.model.Exercise
+    import com.example.exerciseapp.TopIcon
     import com.example.exerciseapp.data.model.ExerciseSet
-    import com.example.exerciseapp.data.model.Log
     import com.example.exerciseapp.data.model.LogWithSets
     import com.example.exerciseapp.ui.AppViewModelProvider
     import com.example.exerciseapp.ui.navigation.NavigationDestination
-    import com.example.exerciseapp.ui.theme.ExerciseAppTheme
+    import com.example.exerciseapp.ui.viewmodels.LogEntryUiState
     import com.example.exerciseapp.ui.viewmodels.LogViewModel
 
     object LogEntryDestination : NavigationDestination {
@@ -67,28 +66,16 @@
         modifier: Modifier = Modifier,
         navController: NavController,
         onNavigateUp: () -> Unit,
-        exerciseId: Int = 0,
         logViewModel: LogViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
         val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-        val exercise by logViewModel.exercise.collectAsState()
-        val previousLog by logViewModel.previousLog.collectAsState()
-        val logDetails by logViewModel.logDetails.collectAsState()
-        val isEditing by logViewModel.isEditing.collectAsState()
-        val sets by logViewModel.sets.collectAsState()
-        val weightInput by logViewModel.weightInput.collectAsState()
-        val repsInput by logViewModel.repsInput.collectAsState()
-
-        LaunchedEffect(exerciseId) {
-            logViewModel.loadExercise(exerciseId)
-            logViewModel.loadPreviousLog(exerciseId)
-        }
+        val uiState by logViewModel.uiState.collectAsState()
 
         Scaffold(
             modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
-                    title = exercise?.name ?: stringResource(R.string.log_entry_screen),
+                    title = stringResource(R.string.log_entry_screen),
                     scrollBehavior = scrollBehavior,
                     leftIcon = {
                         TopIcon(
@@ -106,13 +93,7 @@
             }
         ) { innerPadding ->
             LogEntryBody(
-                logDetails = logDetails,
-                exercise = exercise,
-                previousLog = previousLog,
-                sets = sets,
-                weightInput = weightInput,
-                repsInput = repsInput,
-                isEditing = isEditing,
+                uiState = uiState,
                 onWeightChange = logViewModel::onWeightChange,
                 onRepsChange = logViewModel::onRepsChange,
                 onNotesChange = logViewModel::onNotesChange,
@@ -120,7 +101,6 @@
                 onSubmitLog = logViewModel::submitLog,
                 onEdit = logViewModel::editSet,
                 onDeleteSet = logViewModel::deleteSet,
-                onCancelEdit = logViewModel::cancelEdit,
                 contentPadding = innerPadding
             )
         }
@@ -128,13 +108,7 @@
 
     @Composable
     fun LogEntryBody(
-        logDetails: Log,
-        exercise: Exercise?,
-        previousLog: LogWithSets?,
-        sets: List<ExerciseSet>,
-        weightInput: String,
-        repsInput: String,
-        isEditing: Boolean,
+        uiState: LogEntryUiState,
         onWeightChange: (String) -> Unit,
         onRepsChange: (String) -> Unit,
         onNotesChange: (String) -> Unit,
@@ -142,19 +116,69 @@
         onSubmitLog: () -> Unit,
         onEdit: (Int) -> Unit,
         onDeleteSet: (Int) -> Unit,
-        onCancelEdit: () -> Unit,
         modifier: Modifier = Modifier,
         contentPadding: PaddingValues = PaddingValues(0.dp)
     ) {
+        val focusManager = LocalFocusManager.current
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.padding(contentPadding)
+            modifier = modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    })
+                }
+                .padding(contentPadding)
         ) {
-            exercise?.let {
-                Text(text = it.name, style = MaterialTheme.typography.headlineLarge)
-            }
+            ExerciseHeader(exerciseName = uiState.exerciseName)
+            InputFields(
+                weightInput = uiState.weightInput,
+                repsInput = uiState.repsInput,
+                notesInput = uiState.logDetails.notes,
+                onWeightChange = onWeightChange,
+                onRepsChange = onRepsChange,
+                onNotesChange = onNotesChange
+            )
+            ActionButtons(
+                isEditing = uiState.isEditing,
+                onSubmitSet = onSubmitSet,
+                onSubmitLog = onSubmitLog,
+                uiState = uiState
+            )
+            WorkoutSets(
+                uiState = uiState,
+                onEdit = onEdit,
+                onDeleteSet = onDeleteSet
+            )
+        }
+    }
 
-            // Input Fields for Weight and Reps
+    @Composable
+    fun ExerciseHeader(exerciseName: String) {
+        Text(
+            text = exerciseName,
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Left,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(id = R.dimen.padding_small))
+        )
+    }
+
+    @Composable
+    fun InputFields(
+        weightInput: String,
+        repsInput: String,
+        notesInput: String,
+        onWeightChange: (String) -> Unit,
+        onRepsChange: (String) -> Unit,
+        onNotesChange: (String) -> Unit
+    ) {
+        Column {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(8.dp)
@@ -173,41 +197,89 @@
                     modifier = Modifier.weight(1f)
                 )
             }
-
-            // Notes Input
             OutlinedTextField(
-                value = logDetails.notes,
+                minLines = 3,
+                value = notesInput,
                 onValueChange = onNotesChange,
                 label = { Text("Notes") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
             )
+        }
+    }
 
-            // Submit or Edit Button
-            Row(
-                modifier = Modifier.padding(8.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                if (isEditing) {
-                    Button(onClick = onCancelEdit) {
-                        Text(text = "Cancel")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = onSubmitSet) {
-                        Text(text = "Update Set")
-                    }
-                } else {
-                    Button(onClick = onSubmitSet) {
-                        Text(text = "Add Set")
-                    }
+    @Composable
+    fun ActionButtons(
+        isEditing: Boolean,
+        onSubmitSet: () -> Unit,
+        onSubmitLog: () -> Unit,
+        uiState: LogEntryUiState
+    ) {
+        Row(
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (isEditing) {
+                Button(onClick = onSubmitSet) {
+                    Text(text = "Update")
+                }
+            } else {
+                Button(onClick = onSubmitSet) {
+                    Text(text = "Add")
                 }
             }
+            if (uiState.sets.isNotEmpty()) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = onSubmitLog,
+                ) {
+                    Text(text = "Submit")
+                }
+            }
+        }
+    }
 
-            // Current Workout Sets
-            Text(text = "Current Workout:", style = MaterialTheme.typography.bodyLarge)
+    @Composable
+    fun WorkoutSets(
+        uiState: LogEntryUiState,
+        onEdit: (Int) -> Unit,
+        onDeleteSet: (Int) -> Unit,
+        ){
+        Row{
+
+                CurrentWorkoutSets(
+                    sets = uiState.sets,
+                    onEdit = onEdit,
+                    onDeleteSet = onDeleteSet
+                )
+                PreviousWorkoutSets(previousLog = uiState.previousLog)
+
+        }
+    }
+
+    @Composable
+    fun CurrentWorkoutSets(
+        sets: List<ExerciseSet>,
+        onEdit: (Int) -> Unit,
+        onDeleteSet: (Int) -> Unit
+    ) {
+        Column(    modifier = Modifier
+            .fillMaxWidth(.6f)
+        ) {
+            Row(
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Current Workout:", style = MaterialTheme.typography.bodyLarge)
+            }
             if (sets.isEmpty()) {
-                Text(text = "No sets added.")
+                Row(
+                    modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "No sets added.")
+                }
             } else {
                 LazyColumn {
                     itemsIndexed(sets) { index, set ->
@@ -220,29 +292,35 @@
                     }
                 }
             }
+        }
 
-            // Submit Log Button
-            if (sets.isNotEmpty()) {
-                Button(
-                    onClick = onSubmitLog,
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text(text = "Submit Log")
-                }
-            }
+    }
 
-            // Previous Workout Sets
-            previousLog?.let { log ->
-                Spacer(modifier = Modifier.height(16.dp))
+    @Composable
+    fun PreviousWorkoutSets(
+        previousLog: LogWithSets?
+    ) {
+        Column(    modifier = Modifier
+            .fillMaxWidth(1f)
+        ) {
+            Row(
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(text = "Last Workout:", style = MaterialTheme.typography.bodyLarge)
-                if (log.sets.isEmpty()) {
-                    Text(text = "No previous sets.")
-                } else {
+            }
+            if(previousLog  != null){
                     LazyColumn {
-                        items(log.sets) { set ->
+                        items(previousLog.sets) { set ->
                             SetRowReadOnly(set = set)
                         }
                     }
+            }else {
+                Row(
+                    modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "No previous sets.")
                 }
             }
         }
@@ -257,9 +335,8 @@
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onEdit(index) }
-                .padding(8.dp),
+                .padding(dimensionResource(id = R.dimen.padding_small))
+                .clickable { onEdit(index) },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Set ${index + 1}: ${set.weight} kg x ${set.reps} reps")
@@ -276,9 +353,7 @@
     @Composable
     fun SetRowReadOnly(set: ExerciseSet) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "${set.weight} kg x ${set.reps} reps")
