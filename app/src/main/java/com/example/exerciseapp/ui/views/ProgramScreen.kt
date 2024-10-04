@@ -88,7 +88,7 @@ fun ProgramBody(
         modifier = modifier.padding(contentPadding)
     ) {
         if(workoutList.isEmpty()){
-            EmptyList()
+            EmptyList(text = stringResource(R.string.no_workouts_card))
         }
         else{
             LazyColumn{

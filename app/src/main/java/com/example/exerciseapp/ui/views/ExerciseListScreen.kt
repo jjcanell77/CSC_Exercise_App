@@ -12,8 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
@@ -27,6 +26,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -38,9 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.exerciseapp.BottomNavigation
-import com.example.exerciseapp.TopIcon
 import com.example.exerciseapp.R
 import com.example.exerciseapp.TopAppBar
+import com.example.exerciseapp.TopIcon
 import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.ui.AppViewModelProvider
 import com.example.exerciseapp.ui.navigation.NavigationDestination
@@ -66,6 +68,7 @@ fun ExerciseListScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val exercises by exerciseListViewModel.exerciseList.collectAsState()
     val title by exerciseListViewModel.title.collectAsState()
+    var isEdit by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -74,6 +77,11 @@ fun ExerciseListScreen(
                 title = title,
                 scrollBehavior = scrollBehavior,
                 leftIcon ={ TopIcon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", onClick = {onNavigateUp()}) },
+                rightIcon = {
+                    if(exercises.isNotEmpty()){
+                        TopIcon(imageVector = Icons.Filled.Edit, contentDescription = "Edit", onClick = {isEdit = !isEdit})
+                    }
+                }
             )
         },
         bottomBar = {
@@ -85,7 +93,11 @@ fun ExerciseListScreen(
         ListBody(
             exerciseList = exercises,
             contentPadding = innerPadding,
-            onSelected = navigateToLogEntry
+            onSelected = navigateToLogEntry,
+            isEdit = isEdit,
+            onRename = {exercise -> exerciseListViewModel.renameExercise(exercise)},
+            onDelete = { exercise -> exerciseListViewModel.deleteExercise(exercise) },
+            closeEditMode = { isEdit = false }
         )
     }
 }
@@ -94,6 +106,10 @@ fun ExerciseListScreen(
 fun ListBody(
     modifier: Modifier = Modifier,
     exerciseList: List<Exercise>,
+    isEdit: Boolean = false,
+    onRename: (Exercise) -> Unit = {},
+    onDelete: (Exercise) -> Unit = {},
+    closeEditMode: () -> Unit = {},
     onSelected: (Int) -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ){
@@ -102,13 +118,17 @@ fun ListBody(
         modifier = modifier.padding(contentPadding)
     ) {
         if(exerciseList.isEmpty()){
-            EmptyList()
+            EmptyList(text = stringResource(R.string.no_exercises_card))
         }
         else{
             LazyColumn{
                 items(exerciseList) { exercise ->
                     ExerciseCard(
                         exercise = exercise,
+                        isEdit = isEdit,
+                        onRename = { exerciseR -> onRename(exerciseR)},
+                        onDelete = { exerciseD -> onDelete(exerciseD) },
+                        closeEditMode = closeEditMode,
                         modifier = Modifier
                             .padding(dimensionResource(id = R.dimen.padding_xsmall))
                             .clickable { onSelected(exercise.id) }
@@ -123,8 +143,12 @@ fun ListBody(
 fun ExerciseCard(
     exercise: Exercise,
     modifier: Modifier = Modifier,
+    onRename: (Exercise) -> Unit = {},
+    onDelete: (Exercise) -> Unit = {},
+    closeEditMode: () -> Unit = {},
     isEdit: Boolean = false
 ) {
+    var showRenameDialog by remember { mutableStateOf(false) }
     Card(
         modifier = modifier
     ) {
@@ -134,6 +158,7 @@ fun ExerciseCard(
         ){
             if (isEdit and exercise.isCustom){
                 Icon(
+                    modifier = Modifier.clickable { onDelete(exercise)},
                     imageVector = Icons.Outlined.Clear,
                     contentDescription = "Clear"
                 )
@@ -142,7 +167,7 @@ fun ExerciseCard(
                     modifier = Modifier.padding(8.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = { showRenameDialog = true }) {
                     Text(text = "rename workout")
                 }
             }
@@ -158,18 +183,33 @@ fun ExerciseCard(
                 )
             }
         }
+        if (showRenameDialog) {
+            WorkoutModal(
+                currentName = exercise.name,
+                onConfirm = { newName ->
+                    onRename(exercise.copy(name = newName))
+                    showRenameDialog = false
+                    closeEditMode()
+                },
+                onDismiss = {
+                    showRenameDialog = false
+                    closeEditMode()
+                }
+            )
+        }
     }
 }
 
 @Composable
 fun EmptyList(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    text: String
 ){
     Card(
         modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
     ) {
         Text(
-            text = stringResource(R.string.no_excercises_card),
+            text = text,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
@@ -209,7 +249,7 @@ fun ExerciseCardEditPreview() {
 @Composable
 fun EmptyListPreview() {
     ExerciseAppTheme {
-        EmptyList()
+        EmptyList(text = stringResource(R.string.no_exercises_card))
     }
 }
 

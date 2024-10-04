@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -94,6 +93,7 @@ fun WorkoutScreen (
             isEdit = isEdit,
             contentPadding = innerPadding,
             onSelected = navigateToExerciseList,
+            closeEditMode = { isEdit = false },
             workoutViewModel = workoutViewModel
         )
         if (showWorkoutModal) {
@@ -117,6 +117,7 @@ fun WorkoutBody(
     workoutList: List<Workout>,
     isEdit: Boolean = false,
     onSelected: (Int) -> Unit = {},
+    closeEditMode: () -> Unit = {},
     workoutViewModel: WorkoutViewModel,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ){
@@ -125,7 +126,7 @@ fun WorkoutBody(
         modifier = modifier.padding(contentPadding)
     ) {
         if(workoutList.isEmpty()){
-            EmptyList()
+            EmptyList(text = stringResource(R.string.no_workouts_card))
         }
         else{
             LazyColumn{
@@ -134,6 +135,7 @@ fun WorkoutBody(
                         workout = workout,
                         isEdit = isEdit,
                         workoutViewModel = workoutViewModel,
+                        closeEditMode = closeEditMode,
                         modifier = Modifier
                             .padding(dimensionResource(id = R.dimen.padding_xsmall))
                             .clickable(enabled = !isEdit) { onSelected(workout.id) }
@@ -149,8 +151,9 @@ fun WorkoutCard(
     workout: Workout,
     modifier: Modifier = Modifier,
     workoutViewModel: WorkoutViewModel,
-    isEdit: Boolean
-) {
+    isEdit: Boolean,
+    closeEditMode: () -> Unit = {}
+    ) {
     var showRenameDialog by remember { mutableStateOf(false) }
     Card(
         modifier = modifier
@@ -192,9 +195,11 @@ fun WorkoutCard(
                 onConfirm = { newName ->
                     workoutViewModel.renameWorkout(workout.copy(name = newName))
                     showRenameDialog = false
+                    closeEditMode()
                 },
                 onDismiss = {
                     showRenameDialog = false
+                    closeEditMode()
                 }
             )
         }

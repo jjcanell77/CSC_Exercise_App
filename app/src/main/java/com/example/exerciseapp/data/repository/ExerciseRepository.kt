@@ -36,4 +36,12 @@ class ExerciseRepository(
     suspend fun searchExercises(query: String): List<Exercise> {
         return exerciseDao.searchExercises("%$query%")
     }
+
+    suspend fun deleteExercise(exercise: Exercise) {
+        exerciseDao.deleteExercise(exercise)
+    }
+
+    suspend fun updateExercise(exercise: Exercise) {
+        exerciseDao.updateExercise(exercise)
+    }
 }

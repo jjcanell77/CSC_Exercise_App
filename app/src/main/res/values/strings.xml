@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Exercise App</string>
     <string name="back">Back</string>
-    <string name="no_excercises_card">Looks like there are no exercises in this Workout.</string>
+    <string name="no_exercises_card">Looks like there are no exercises in this Workout.</string>
+    <string name="no_workouts_card">Looks like there are no workouts.\n You should add some.</string>
     <string name="workout_screen_title">Workouts</string>
     <string name="program_screen_title">Programs</string>
     <string name="log_entry_screen">Log Entry</string>

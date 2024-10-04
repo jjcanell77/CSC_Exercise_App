@@ -21,6 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,7 +41,6 @@ import com.example.exerciseapp.data.model.MuscleGroup
 import com.example.exerciseapp.ui.AppViewModelProvider
 import com.example.exerciseapp.ui.navigation.NavigationDestination
 import com.example.exerciseapp.ui.viewmodels.ExerciseViewModel
-import com.example.exerciseapp.ui.viewmodels.MuscleGroupViewModel
 
 object HomeDestination : NavigationDestination {
     override val route = "exercise_screen"
@@ -58,6 +60,7 @@ fun ExerciseScreen (
     val exerciseList by exerciseViewModel.exerciseList.collectAsState()
     val showList by exerciseViewModel.showList.collectAsState()
     val muscleGroupList by exerciseViewModel.muscleGroupList.collectAsState()
+    var isEdit by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -83,6 +86,10 @@ fun ExerciseScreen (
             ListBody(
                 exerciseList = exerciseList,
                 contentPadding = innerPadding,
+                isEdit = isEdit,
+                onRename = {exercise -> exerciseViewModel.renameExercise(exercise)},
+                onDelete = { exercise -> exerciseViewModel.deleteExercise(exercise) },
+                closeEditMode = { isEdit = false },
                 onSelected = navigateToExerciseList
             )
         } else{

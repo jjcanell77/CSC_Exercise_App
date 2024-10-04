@@ -31,7 +31,7 @@ class ExerciseViewModel(
         }
     }
 
-    fun getExercises() {
+    private fun getExercises() {
         viewModelScope.launch {
             exerciseList.value = exerciseRepository.getAllExercises()
         }
@@ -39,6 +39,20 @@ class ExerciseViewModel(
 
     fun getImageResourceId(context: Context, imageName: String): Int {
         return context.resources.getIdentifier(imageName, "drawable", context.packageName)
+    }
+
+    fun deleteExercise(exercise: Exercise) {
+        viewModelScope.launch {
+            exerciseRepository.deleteExercise(exercise)
+            getExercises()
+        }
+    }
+
+    fun renameExercise(exercise: Exercise) {
+        viewModelScope.launch {
+            exerciseRepository.updateExercise(exercise)
+            getExercises()
+        }
     }
 
     fun onSearchTextChange(newText: String) {

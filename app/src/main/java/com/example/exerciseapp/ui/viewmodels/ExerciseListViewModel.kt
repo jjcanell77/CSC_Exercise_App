@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class ExerciseListViewModel(
     savedStateHandle: SavedStateHandle,
-    private val workoutRepository: WorkoutRepository
+    private val workoutRepository: WorkoutRepository,
+    private  val exerciseRepository: ExerciseRepository
 ) : ViewModel() {
     private val workoutId: Int = checkNotNull(savedStateHandle[ExerciseListDestination.workoutIdArg])
     private val _exerciseList = MutableStateFlow<List<Exercise>>(emptyList())
@@ -31,6 +32,20 @@ class ExerciseListViewModel(
             val workoutWithExercises = workoutRepository.getWorkoutWithExercises(workoutId)
             _title.value = workoutWithExercises.workout.name
             _exerciseList.value = workoutWithExercises.exercises
+        }
+    }
+
+    fun deleteExercise(exercise: Exercise) {
+        viewModelScope.launch {
+            exerciseRepository.deleteExercise(exercise)
+            loadExercises()
+        }
+    }
+
+    fun renameExercise(exercise: Exercise) {
+        viewModelScope.launch {
+            exerciseRepository.updateExercise(exercise)
+            loadExercises()
         }
     }
 }

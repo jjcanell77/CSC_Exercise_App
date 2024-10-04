@@ -1,9 +1,11 @@
 package com.example.exerciseapp.data.dao
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.MuscleGroup
 
@@ -34,4 +36,10 @@ interface ExerciseDao {
 
     @Query("SELECT * FROM exercises WHERE name LIKE :query")
     suspend fun searchExercises(query: String): List<Exercise>
+
+    @Delete
+    suspend fun deleteExercise(exercise: Exercise)
+
+    @Update
+    suspend fun updateExercise(exercise: Exercise)
 }

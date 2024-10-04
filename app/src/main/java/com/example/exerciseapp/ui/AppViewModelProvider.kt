@@ -47,6 +47,7 @@ object AppViewModelProvider {
         initializer {
             ExerciseListViewModel(
                 workoutRepository = myApplication().container.workoutRepository,
+                exerciseRepository = myApplication().container.exerciseRepository,
                 savedStateHandle = createSavedStateHandle()
             )
         }
