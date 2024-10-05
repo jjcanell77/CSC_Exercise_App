@@ -42,4 +42,7 @@ interface ExerciseDao {
 
     @Update
     suspend fun updateExercise(exercise: Exercise)
+
+    @Insert
+    suspend fun addExercise(exercise: Exercise): Long
 }

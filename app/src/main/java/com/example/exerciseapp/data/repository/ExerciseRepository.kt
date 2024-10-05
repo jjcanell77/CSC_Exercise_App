@@ -44,4 +44,8 @@ class ExerciseRepository(
     suspend fun updateExercise(exercise: Exercise) {
         exerciseDao.updateExercise(exercise)
     }
+
+    suspend fun addExercise(exercise: Exercise): Long {
+        return exerciseDao.addExercise(exercise)
+    }
 }

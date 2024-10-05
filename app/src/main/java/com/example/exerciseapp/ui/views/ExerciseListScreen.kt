@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,17 +17,25 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,7 +45,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -44,9 +53,9 @@ import com.example.exerciseapp.R
 import com.example.exerciseapp.TopAppBar
 import com.example.exerciseapp.TopIcon
 import com.example.exerciseapp.data.model.Exercise
+import com.example.exerciseapp.data.model.MuscleGroup
 import com.example.exerciseapp.ui.AppViewModelProvider
 import com.example.exerciseapp.ui.navigation.NavigationDestination
-import com.example.exerciseapp.ui.theme.ExerciseAppTheme
 import com.example.exerciseapp.ui.viewmodels.ExerciseListViewModel
 
 object ExerciseListDestination : NavigationDestination {
@@ -68,7 +77,9 @@ fun ExerciseListScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val exercises by exerciseListViewModel.exerciseList.collectAsState()
     val title by exerciseListViewModel.title.collectAsState()
+    val muscleGroupList by exerciseListViewModel.muscleGroupList.collectAsState()
     var isEdit by remember { mutableStateOf(false) }
+//    var showEntryModal by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -78,25 +89,33 @@ fun ExerciseListScreen(
                 scrollBehavior = scrollBehavior,
                 leftIcon ={ TopIcon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", onClick = {onNavigateUp()}) },
                 rightIcon = {
-                    if(exercises.isNotEmpty()){
+                    if (exercises.isNotEmpty() && exercises.any { exercise -> exercise.isCustom }) {
                         TopIcon(imageVector = Icons.Filled.Edit, contentDescription = "Edit", onClick = {isEdit = !isEdit})
                     }
                 }
             )
         },
         bottomBar = {
-            BottomNavigation(
-                navController = navController,
-            )
+//            Column { {TODO} will navigate to WorkoutEntryScreen to add exercises to Workout.
+//                Button(onClick = { showEntryModal = true }) {
+//                    Text(text = "Add")
+//                }
+                BottomNavigation(
+                    navController = navController,
+                )
+//            }
         }
     ){ innerPadding ->
         ListBody(
             exerciseList = exercises,
             contentPadding = innerPadding,
             onSelected = navigateToLogEntry,
+            muscleGroupList = muscleGroupList,
             isEdit = isEdit,
-            onRename = {exercise -> exerciseListViewModel.renameExercise(exercise)},
-            onDelete = { exercise -> exerciseListViewModel.deleteExercise(exercise) },
+            onUpdate = { newName, muscleGroupId ->
+                exerciseListViewModel.updateExercise(newName, muscleGroupId)},
+            onDelete = { exercise ->
+                exerciseListViewModel.deleteExercise(exercise) },
             closeEditMode = { isEdit = false }
         )
     }
@@ -105,9 +124,10 @@ fun ExerciseListScreen(
 @Composable
 fun ListBody(
     modifier: Modifier = Modifier,
+    muscleGroupList: List<MuscleGroup>,
     exerciseList: List<Exercise>,
     isEdit: Boolean = false,
-    onRename: (Exercise) -> Unit = {},
+    onUpdate: (String, Int) -> Unit,
     onDelete: (Exercise) -> Unit = {},
     closeEditMode: () -> Unit = {},
     onSelected: (Int) -> Unit = {},
@@ -125,8 +145,9 @@ fun ListBody(
                 items(exerciseList) { exercise ->
                     ExerciseCard(
                         exercise = exercise,
+                        muscleGroupList = muscleGroupList,
                         isEdit = isEdit,
-                        onRename = { exerciseR -> onRename(exerciseR)},
+                        onUpdate = { newName, muscleGroupId -> onUpdate(newName, muscleGroupId)},
                         onDelete = { exerciseD -> onDelete(exerciseD) },
                         closeEditMode = closeEditMode,
                         modifier = Modifier
@@ -142,11 +163,12 @@ fun ListBody(
 @Composable
 fun ExerciseCard(
     exercise: Exercise,
+    muscleGroupList: List<MuscleGroup>,
     modifier: Modifier = Modifier,
-    onRename: (Exercise) -> Unit = {},
+    onUpdate: (String, Int) -> Unit,
     onDelete: (Exercise) -> Unit = {},
     closeEditMode: () -> Unit = {},
-    isEdit: Boolean = false
+    isEdit: Boolean
 ) {
     var showRenameDialog by remember { mutableStateOf(false) }
     Card(
@@ -184,10 +206,12 @@ fun ExerciseCard(
             }
         }
         if (showRenameDialog) {
-            WorkoutModal(
+            ExerciseModal(
+                title = "Edit Exercise",
                 currentName = exercise.name,
-                onConfirm = { newName ->
-                    onRename(exercise.copy(name = newName))
+                muscleGroupList = muscleGroupList,
+                onConfirm = {  newName, muscleGroupId ->
+                    onUpdate( newName, muscleGroupId)
                     showRenameDialog = false
                     closeEditMode()
                 },
@@ -217,64 +241,74 @@ fun EmptyList(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun ExerciseCardPreview() {
-    val exercise =
-        Exercise(
-            id = 1,
-            name = "Bench Press",
-            typeId = 1
-        )
-    ExerciseAppTheme {
-        ExerciseCard(exercise)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ExerciseCardEditPreview() {
-    val exercise =
-        Exercise(
-            id = 1,
-            name = "Bench Press",
-            typeId = 1
-        )
-    ExerciseAppTheme {
-        ExerciseCard(exercise, isEdit = true)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EmptyListPreview() {
-    ExerciseAppTheme {
-        EmptyList(text = stringResource(R.string.no_exercises_card))
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ListScreenPreview () {
-    val exerciseList = listOf(
-        Exercise(
-            id = 1,
-            name = "Bench Press",
-            typeId = 1
-        ),
-        Exercise(
-            id = 2,
-            name = "Squat",
-            typeId = 1
-        )
-        ,
-        Exercise(
-            id = 3,
-            name = "Deadlift",
-            typeId = 1
-        )
+fun ExerciseModal(
+    title: String,
+    currentName: String = "",
+    currentType: Int = 1,
+    onConfirm: (String, Int) -> Unit,
+    muscleGroupList: List<MuscleGroup>,
+    onDismiss: () -> Unit
+) {
+    var name by remember { mutableStateOf(currentName) }
+    var selectedMuscleGroupId by remember { mutableIntStateOf(currentType) }
+    var expanded by remember { mutableStateOf(false) }
+    val selectedMuscleGroupName = muscleGroupList.firstOrNull { it.id == selectedMuscleGroupId }?.name ?: ""
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = title) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("New Exercise Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedMuscleGroupName,
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("Muscle Group") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier.fillMaxWidth()
+                            .menuAnchor()
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        muscleGroupList.forEach { muscleGroup ->
+                            DropdownMenuItem(
+                                text = { Text(muscleGroup.name) },
+                                onClick = {
+                                    selectedMuscleGroupId = muscleGroup.id
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(name, selectedMuscleGroupId)
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
     )
-    ExerciseAppTheme {
-        ListBody(exerciseList = exerciseList)
-    }
 }

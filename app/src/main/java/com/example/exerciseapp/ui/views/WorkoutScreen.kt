@@ -74,7 +74,7 @@ fun WorkoutScreen (
         TopAppBar(
             title = stringResource(R.string.workout_screen_title),
             rightIcon ={
-                if(workoutList.isNotEmpty()){
+                if(workoutList.isNotEmpty() && workoutList.any{ workout -> workout.isCustom}){
                     TopIcon(imageVector = Icons.Filled.Edit, contentDescription = "Edit", onClick = {isEdit = !isEdit})
                 }
             },
@@ -98,6 +98,7 @@ fun WorkoutScreen (
         )
         if (showWorkoutModal) {
             WorkoutModal(
+                title= "Add Workout",
                 currentName = "",
                 onConfirm = { newName ->
                     showWorkoutModal = false
@@ -191,6 +192,7 @@ fun WorkoutCard(
         }
         if (showRenameDialog) {
             WorkoutModal(
+                title= "Rename Workout",
                 currentName = workout.name,
                 onConfirm = { newName ->
                     workoutViewModel.renameWorkout(workout.copy(name = newName))
@@ -208,6 +210,7 @@ fun WorkoutCard(
 
 @Composable
 fun WorkoutModal(
+    title: String,
     currentName: String,
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
@@ -215,7 +218,7 @@ fun WorkoutModal(
     var newName by remember { mutableStateOf(currentName) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Rename Workout") },
+        title = { Text(text = title) },
         text = {
             OutlinedTextField(
                 value = newName,
@@ -244,6 +247,6 @@ fun WorkoutModal(
 @Composable
 fun RenameWorkoutDialogPreview () {
     ExerciseAppTheme {
-        WorkoutModal("Chest Day", {}, {})
+        WorkoutModal(title= "Rename Workout","Chest Day", {}, {})
     }
 }

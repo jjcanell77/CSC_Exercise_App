@@ -48,9 +48,14 @@ class ExerciseViewModel(
         }
     }
 
-    fun renameExercise(exercise: Exercise) {
+    fun updateExercise(name: String, typeId: Int) {
         viewModelScope.launch {
-            exerciseRepository.updateExercise(exercise)
+            val updatedExercise = Exercise(
+                name = name,
+                typeId = typeId,
+                isCustom = true
+            )
+            exerciseRepository.updateExercise(updatedExercise)
             getExercises()
         }
     }

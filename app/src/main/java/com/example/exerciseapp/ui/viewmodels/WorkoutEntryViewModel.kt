@@ -39,12 +39,23 @@ class WorkoutEntryViewModel(
         viewModelScope.launch {
             val newWorkout = Workout(name = name, isCustom = true)
             val workoutId = workoutRepository.insertWorkout(newWorkout).toInt()
-            // Add the exercises to the workout
             exercises.forEach { exercise ->
                 workoutRepository.insertWorkoutExerciseCrossRef(
-                    WorkoutExercise(workoutId = workoutId.toInt(), exerciseId = exercise.id)
+                    WorkoutExercise(workoutId = workoutId, exerciseId = exercise.id)
                 )
             }
+        }
+    }
+
+    fun addExercise(name: String, typeId: Int) {
+        viewModelScope.launch {
+            val newExercise = Exercise(
+                name = name,
+                typeId = typeId,
+                isCustom = true
+            )
+            val workoutId = exerciseRepository.addExercise(newExercise).toInt()
+            getExercises()
         }
     }
 }

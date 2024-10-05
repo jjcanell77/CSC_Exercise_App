@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exerciseapp.data.model.Exercise
+import com.example.exerciseapp.data.model.MuscleGroup
 import com.example.exerciseapp.data.repository.ExerciseRepository
 import com.example.exerciseapp.data.repository.WorkoutRepository
 import com.example.exerciseapp.ui.views.ExerciseListDestination
@@ -19,12 +20,15 @@ class ExerciseListViewModel(
     private val workoutId: Int = checkNotNull(savedStateHandle[ExerciseListDestination.workoutIdArg])
     private val _exerciseList = MutableStateFlow<List<Exercise>>(emptyList())
     private val _title = MutableStateFlow<String>("")
+    private val _muscleGroupList = MutableStateFlow<List<MuscleGroup>>(emptyList())
 
+    val muscleGroupList: StateFlow<List<MuscleGroup>> = _muscleGroupList
     val exerciseList: StateFlow<List<Exercise>> = _exerciseList
     val title: StateFlow<String> = _title
 
     init {
         loadExercises()
+        getMuscleGroups()
     }
 
     private fun loadExercises() {
@@ -35,6 +39,12 @@ class ExerciseListViewModel(
         }
     }
 
+    private fun getMuscleGroups() {
+        viewModelScope.launch {
+            _muscleGroupList.value = exerciseRepository.getAllMuscleGroups()
+        }
+    }
+
     fun deleteExercise(exercise: Exercise) {
         viewModelScope.launch {
             exerciseRepository.deleteExercise(exercise)
@@ -42,9 +52,14 @@ class ExerciseListViewModel(
         }
     }
 
-    fun renameExercise(exercise: Exercise) {
+    fun updateExercise(name: String, typeId: Int) {
         viewModelScope.launch {
-            exerciseRepository.updateExercise(exercise)
+            val updatedExercise = Exercise(
+                name = name,
+                typeId = typeId,
+                isCustom = true
+            )
+            exerciseRepository.updateExercise(updatedExercise)
             loadExercises()
         }
     }

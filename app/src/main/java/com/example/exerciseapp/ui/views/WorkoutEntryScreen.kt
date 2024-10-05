@@ -61,7 +61,6 @@ fun WorkoutEntryScreen(
                 title = newWorkoutName,
                 leftIcon = { TopIcon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", onClick = { onNavigateUp() }) },
                 rightIcon = { SaveButton(onClick = {
-                    // Create the new workout and navigate to WorkoutScreen
                     workoutEntryViewModel.addWorkout(newWorkoutName, selectedExercises)
                     navigateToWorkout()
                 }) },

@@ -20,6 +20,7 @@
     import androidx.compose.material.icons.automirrored.filled.ArrowBack
     import androidx.compose.material.icons.outlined.Clear
     import androidx.compose.material3.Button
+    import androidx.compose.material3.ButtonDefaults
     import androidx.compose.material3.ExperimentalMaterial3Api
     import androidx.compose.material3.Icon
     import androidx.compose.material3.IconButton
@@ -221,18 +222,36 @@
             horizontalArrangement = Arrangement.Center
         ) {
             if (isEditing) {
-                Button(onClick = onSubmitSet) {
+                Button(
+                    onClick = onSubmitSet,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
+                ) {
                     Text(text = "Update")
                 }
             } else {
-                Button(onClick = onSubmitSet) {
+                Button(
+                    onClick = onSubmitSet,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
+                ) {
                     Text(text = "Add")
                 }
             }
             if (uiState.sets.isNotEmpty()) {
-                Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = onSubmitLog,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
                 ) {
                     Text(text = "Submit")
                 }
@@ -247,14 +266,12 @@
         onDeleteSet: (Int) -> Unit,
         ){
         Row{
-
-                CurrentWorkoutSets(
-                    sets = uiState.sets,
-                    onEdit = onEdit,
-                    onDeleteSet = onDeleteSet
-                )
-                PreviousWorkoutSets(previousLog = uiState.previousLog)
-
+            CurrentWorkoutSets(
+                sets = uiState.sets,
+                onEdit = onEdit,
+                onDeleteSet = onDeleteSet
+            )
+            PreviousWorkoutSets(previousLog = uiState.previousLog)
         }
     }
 
