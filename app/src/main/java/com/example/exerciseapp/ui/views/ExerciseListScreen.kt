@@ -113,8 +113,8 @@ fun ExerciseListScreen(
             muscleGroupList = muscleGroupList,
             isEdit = isEdit,
             isWorkoutList = true,
-            onUpdate = { newName, muscleGroupId ->
-                exerciseListViewModel.updateExercise(newName, muscleGroupId)},
+            onUpdate = { exercise ->
+                exerciseListViewModel.updateExercise(exercise)},
             onDelete = { exercise ->
                 exerciseListViewModel.deleteExercise(exercise) },
             closeEditMode = { isEdit = false }
@@ -129,7 +129,7 @@ fun ListBody(
     exerciseList: List<Exercise>,
     isEdit: Boolean = false,
     isWorkoutList: Boolean = false,
-    onUpdate: (String, Int) -> Unit,
+    onUpdate: (Exercise) -> Unit,
     onDelete: (Exercise) -> Unit = {},
     closeEditMode: () -> Unit = {},
     onSelected: (Int) -> Unit = {},
@@ -154,7 +154,7 @@ fun ListBody(
                         exercise = exercise,
                         muscleGroupList = muscleGroupList,
                         isEdit = isEdit,
-                        onUpdate = { newName, muscleGroupId -> onUpdate(newName, muscleGroupId)},
+                        onUpdate = { exercise -> onUpdate(exercise)},
                         onDelete = { exerciseD -> onDelete(exerciseD) },
                         closeEditMode = closeEditMode,
                         modifier = Modifier
@@ -172,7 +172,7 @@ fun ExerciseCard(
     exercise: Exercise,
     muscleGroupList: List<MuscleGroup>,
     modifier: Modifier = Modifier,
-    onUpdate: (String, Int) -> Unit,
+    onUpdate: (Exercise) -> Unit,
     onDelete: (Exercise) -> Unit = {},
     closeEditMode: () -> Unit = {},
     isEdit: Boolean
@@ -217,8 +217,8 @@ fun ExerciseCard(
                 title = "Edit Exercise",
                 currentName = exercise.name,
                 muscleGroupList = muscleGroupList,
-                onConfirm = {  newName, muscleGroupId ->
-                    onUpdate( newName, muscleGroupId)
+                onConfirm = {  name, typeId ->
+                    onUpdate( exercise.copy(name = name, typeId = typeId))
                     showRenameDialog = false
                     closeEditMode()
                 },

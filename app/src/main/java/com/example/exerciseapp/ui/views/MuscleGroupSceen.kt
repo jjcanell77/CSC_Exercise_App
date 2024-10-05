@@ -112,8 +112,8 @@ fun MuscleGroupScreen(
             contentPadding = innerPadding,
             closeEditMode = { isEdit = false },
             isEdit = isEdit,
-            onUpdate = { newName, muscleGroupId ->
-                muscleGroupViewModel.updateExercise(newName, muscleGroupId)},
+            onUpdate = {  exercise ->
+                muscleGroupViewModel.updateExercise(exercise)},
             onDelete = { exercise ->
                 muscleGroupViewModel.deleteExercise(exercise) },
             onSelected = navigateToLogEntry
@@ -140,7 +140,7 @@ fun MuscleGroupBody(
     muscleGroupList: List<MuscleGroup>,
     exerciseList: List<Exercise>,
     isEdit: Boolean = false,
-    onUpdate: (String, Int) -> Unit,
+    onUpdate: (Exercise) -> Unit,
     onDelete: (Exercise) -> Unit = {},
     closeEditMode: () -> Unit = {},
     onSelected: (Int) -> Unit = {},
@@ -160,7 +160,7 @@ fun MuscleGroupBody(
                         exercise = exercise,
                         muscleGroupList = muscleGroupList,
                         isEdit = isEdit,
-                        onUpdate = { newName, muscleGroupId -> onUpdate(newName, muscleGroupId)},
+                        onUpdate = { exercise -> onUpdate(exercise)},
                         onDelete = { exerciseD -> onDelete(exerciseD) },
                         closeEditMode = closeEditMode,
                         modifier = Modifier

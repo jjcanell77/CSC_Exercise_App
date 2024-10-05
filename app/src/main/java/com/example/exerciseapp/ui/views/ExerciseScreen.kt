@@ -87,7 +87,7 @@ fun ExerciseScreen (
                 contentPadding = innerPadding,
                 isEdit = isEdit,
                 muscleGroupList = muscleGroupList,
-                onUpdate = { newName, muscleGroupId -> exerciseViewModel.updateExercise(newName, muscleGroupId)},
+                onUpdate = { exercise -> exerciseViewModel.updateExercise(exercise)},
                 onDelete = { exercise -> exerciseViewModel.deleteExercise(exercise) },
                 closeEditMode = { isEdit = false },
                 onSelected = navigateToLogEntry

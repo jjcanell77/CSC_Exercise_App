@@ -61,14 +61,9 @@ class MuscleGroupViewModel(
         }
     }
 
-    fun updateExercise(name: String, typeId: Int) {
+    fun updateExercise(exercise: Exercise) {
         viewModelScope.launch {
-            val updatedExercise = Exercise(
-                name = name,
-                typeId = typeId,
-                isCustom = true
-            )
-            exerciseRepository.updateExercise(updatedExercise)
+            exerciseRepository.updateExercise(exercise)
             getExerciseByMuscleGroup()
         }
     }
