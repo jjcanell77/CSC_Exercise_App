@@ -52,7 +52,7 @@ fun ExerciseScreen (
     modifier: Modifier = Modifier,
     navController: NavController,
     navigateToMuscleGroupScreen: (Int) -> Unit,
-    navigateToExerciseList: (Int) -> Unit,
+    navigateToLogEntry: (Int) -> Unit,
     exerciseViewModel: ExerciseViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val searchText by exerciseViewModel.searchText.collectAsState()
@@ -65,15 +65,14 @@ fun ExerciseScreen (
     Scaffold(
         topBar = {
             TopSearchBar(
-                searchText = searchText, // text showed on SearchBar
-                onSearchTextChange = exerciseViewModel::onSearchTextChange, // update the value of searchText
-                isSearching = isSearching, // whether the user is searching or not
-                onToggleSearch = { exerciseViewModel.onToggleSearch() }, // toggles search state
+                searchText = searchText,
+                onSearchTextChange = exerciseViewModel::onSearchTextChange,
+                isSearching = isSearching,
+                onToggleSearch = { exerciseViewModel.onToggleSearch() },
                 close = { exerciseViewModel.onCloseSearch() },
-                exerciseList = exerciseList,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(dimensionResource(id = R.dimen.padding_small))
+                    .padding(dimensionResource(id = R.dimen.padding_medium))
             )
         },
         bottomBar = {
@@ -91,12 +90,13 @@ fun ExerciseScreen (
                 onUpdate = { newName, muscleGroupId -> exerciseViewModel.updateExercise(newName, muscleGroupId)},
                 onDelete = { exercise -> exerciseViewModel.deleteExercise(exercise) },
                 closeEditMode = { isEdit = false },
-                onSelected = navigateToExerciseList
+                onSelected = navigateToLogEntry
             )
         } else{
             ExerciseBody(
                 muscleGroupList = muscleGroupList,
                 modifier = modifier.fillMaxSize(),
+                onGetImageResource = {context, imageName -> exerciseViewModel.getImageResourceId(context, imageName)},
                 contentPadding = innerPadding,
                 onSelected = navigateToMuscleGroupScreen
             )
@@ -109,6 +109,7 @@ private fun ExerciseBody(
     muscleGroupList: List<MuscleGroup>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    onGetImageResource: (Context, String) -> Int,
     onSelected: (Int) -> Unit = {}
 ) {
     Column(
@@ -122,6 +123,7 @@ private fun ExerciseBody(
             items(muscleGroupList) { muscleGroup ->
                 MuscleGroupCard(
                     muscleGroup = muscleGroup,
+                    onGetImageResource = { context, imageName ->onGetImageResource(context, imageName) },
                     modifier = Modifier
                         .padding(dimensionResource(id = R.dimen.padding_xsmall))
                         .clickable { onSelected(muscleGroup.id) }
@@ -131,17 +133,14 @@ private fun ExerciseBody(
     }
 }
 
-fun getImageResourceId(context: Context, imageName: String): Int {
-    return context.resources.getIdentifier(imageName, "drawable", context.packageName)
-}
-
 @Composable
 private fun MuscleGroupCard(
+    onGetImageResource: (Context, String) -> Int,
     muscleGroup: MuscleGroup,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val imageResId = getImageResourceId(context, muscleGroup.imageName)
+    val imageResId = onGetImageResource(context, muscleGroup.imageName)
 
     Card(
         modifier = modifier
@@ -171,39 +170,3 @@ private fun MuscleGroupCard(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun MuscleGroupCardPreview() {
-//    val muscleGroup = MuscleGroup(
-//                id = 1,
-//                name = "Abs",
-//                image = R.drawable.abs,
-//            )
-//    ExerciseAppTheme {
-//        MuscleGroupCard(muscleGroup)
-//    }
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun ExerciseScreenPreview () {
-//    val muscleGroupList = listOf(
-//        MuscleGroup(
-//            id = 1,
-//            name = "Abs",
-//            image = R.drawable.abs,
-//        ),MuscleGroup(
-//            id = 2,
-//            name = "Chest",
-//            image = R.drawable.chest,
-//        ),MuscleGroup(
-//            id = 3,
-//            name = "Legs",
-//            image = R.drawable.legs,
-//        )
-//    )
-//    ExerciseAppTheme {
-//        ExerciseBody(muscleGroupList)
-//    }
-//}

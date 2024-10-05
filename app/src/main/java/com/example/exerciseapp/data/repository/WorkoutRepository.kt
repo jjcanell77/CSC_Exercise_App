@@ -18,21 +18,8 @@ class WorkoutRepository(
         workoutExerciseDao.insertWorkoutExercise(crossRef)
     }
 
-    suspend fun getAllWorkouts(): List<Workout> {
-        return workoutDao.getAllWorkouts()
-    }
-
     suspend fun getWorkoutWithExercises(workoutId: Int): WorkoutWithExercises {
         return workoutExerciseDao.getWorkoutWithExercises(workoutId)
-    }
-
-    suspend fun insertWorkoutWithExercises(workout: Workout, exerciseIds: List<Int>) {
-        val workoutId = workoutDao.insertWorkout(workout).toInt()
-        exerciseIds.forEach { exerciseId ->
-            workoutExerciseDao.insertWorkoutExercise(
-                WorkoutExercise(workoutId = workoutId, exerciseId = exerciseId)
-            )
-        }
     }
 
     suspend fun getNonCustomWorkouts(): List<Workout> {

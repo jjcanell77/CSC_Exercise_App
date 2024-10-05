@@ -12,19 +12,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
@@ -33,7 +31,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.exerciseapp.data.model.BottomNavigationItem
-import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.ui.navigation.AppNavHost
 import com.example.exerciseapp.ui.views.HomeDestination
 import com.example.exerciseapp.ui.views.ProgramDestination
@@ -53,56 +50,54 @@ fun TopSearchBar(
     searchText: String,
     onSearchTextChange: (String) -> Unit = {},
     isSearching: Boolean,
-    onToggleSearch: () -> Unit = {},
+    onToggleSearch: (Boolean) -> Unit = {},
     close: () -> Unit = {},
-    exerciseList: List<Exercise>) {
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     SearchBar(
-//        colors = colors().copy(
-//            containerColor = Color.White,
-//            dividerColor = Color.Red
-//        ),
-        query = searchText, // text showed on SearchBar
-        onQueryChange = onSearchTextChange, // update the value of searchText
-        onSearch = onSearchTextChange, // the callback for search action
-        active = isSearching, // whether the user is searching or not
-        onActiveChange = { onToggleSearch() }, // toggles search state
-        modifier = modifier,
-        placeholder = {
-            Row {
-                Icon(imageVector = Filled.Search, contentDescription = "Search" )
-                Text(text = "Search")
-            }
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = searchText,
+                onQueryChange = onSearchTextChange,
+                onSearch = {
+                    onSearchTextChange(it)
+                    keyboardController?.hide()
+                },
+                expanded = false,
+                onExpandedChange = onToggleSearch,
+                enabled = true,
+                placeholder = {
+                    Row {
+                        Icon(imageVector = Filled.Search, contentDescription = "Search")
+                        Text(text = "Exercises")
+                    }
+                },
+                trailingIcon = {
+                    if (isSearching) {
+                        IconButton(
+                            onClick = {
+                                close()
+                                keyboardController?.hide()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Filled.Clear,
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
+                    }
+                },
+                interactionSource = null
+            )
         },
-        trailingIcon = {
-            if(isSearching){
-                IconButton(
-                    onClick = {close()}
-                ) {
-                    Icon(
-                        imageVector = Filled.Clear,
-                        contentDescription = stringResource(R.string.back)
-                    )
-                }
-            }
+        expanded = false,
+        onExpandedChange = onToggleSearch,
+        modifier = modifier,
+        content = {
         }
-    ){
-//        ExerciseList(
-//            exerciseList = exerciseList,
-//            modifier = Modifier
-//                .padding(dimensionResource(id = R.dimen.padding_xsmall))
-//                .clickable { }
-//        )
-//        LazyColumn {
-//            items(exerciseList) { exercise ->
-//                Text(
-//                    text = exercise.name,
-//                    modifier = Modifier
-//                        .padding(8.dp)
-//                )
-//            }
-//        }
-    }
+    )
 }
+
 
 @Composable
 fun BottomNavigation(
@@ -219,11 +214,11 @@ fun TopAppBar(
 }
 
 @Composable
-fun TopIcon (
+fun TopIcon(
     imageVector: ImageVector,
     contentDescription: String,
     onClick: () -> Unit
-){
+) {
     IconButton(onClick = onClick) {
         Icon(
             imageVector = imageVector,

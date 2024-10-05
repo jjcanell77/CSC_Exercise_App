@@ -23,6 +23,7 @@ class ExerciseViewModel(
 
     init {
         getMuscleGroups()
+        getExercises()
     }
 
     private fun getMuscleGroups() {
@@ -34,6 +35,18 @@ class ExerciseViewModel(
     private fun getExercises() {
         viewModelScope.launch {
             exerciseList.value = exerciseRepository.getAllExercises()
+        }
+    }
+
+    private fun searchExercises(query: String) {
+        viewModelScope.launch {
+            if (query.isNotEmpty()) {
+                exerciseList.value = exerciseRepository.searchExercises(query)
+                showList.value = true
+            } else {
+                getExercises()
+                showList.value = false
+            }
         }
     }
 
@@ -67,18 +80,17 @@ class ExerciseViewModel(
 
     fun onToggleSearch() {
         isSearching.value = !isSearching.value
+        if (!isSearching.value) {
+            onCloseSearch()
+        } else {
+            showList.value = true
+        }
     }
 
     fun onCloseSearch() {
         isSearching.value = false
         searchText.value = ""
         showList.value = false
-    }
-
-    private fun searchExercises(query: String) {
-        viewModelScope.launch {
-            exerciseList.value = exerciseRepository.searchExercises(query)
-            showList.value = true
-        }
+        getExercises()
     }
 }

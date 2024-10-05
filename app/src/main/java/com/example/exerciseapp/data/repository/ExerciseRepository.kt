@@ -22,9 +22,6 @@ class ExerciseRepository(
         return exerciseDao.getExercisesByMuscleGroup(typeId)
     }
 
-    suspend fun getExercisesByWorkout(workoutId: Int): List<Exercise> {
-        return exerciseDao.getExercisesByWorkout(workoutId)    }
-
     suspend fun getExerciseById(id: Int): Exercise {
         return exerciseDao.getExerciseById(id)
     }

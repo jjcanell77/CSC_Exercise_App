@@ -112,6 +112,7 @@ fun ExerciseListScreen(
             onSelected = navigateToLogEntry,
             muscleGroupList = muscleGroupList,
             isEdit = isEdit,
+            isWorkoutList = true,
             onUpdate = { newName, muscleGroupId ->
                 exerciseListViewModel.updateExercise(newName, muscleGroupId)},
             onDelete = { exercise ->
@@ -127,18 +128,24 @@ fun ListBody(
     muscleGroupList: List<MuscleGroup>,
     exerciseList: List<Exercise>,
     isEdit: Boolean = false,
+    isWorkoutList: Boolean = false,
     onUpdate: (String, Int) -> Unit,
     onDelete: (Exercise) -> Unit = {},
     closeEditMode: () -> Unit = {},
     onSelected: (Int) -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ){
+    val emptyList = if(isWorkoutList){
+        stringResource(id =R.string.no_exercises_card)
+    }else{
+        stringResource(id =R.string.no_results_card)
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(contentPadding)
     ) {
         if(exerciseList.isEmpty()){
-            EmptyList(text = stringResource(R.string.no_exercises_card))
+            EmptyList(text = emptyList)
         }
         else{
             LazyColumn{
@@ -230,7 +237,7 @@ fun EmptyList(
     text: String
 ){
     Card(
-        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
+        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium)).fillMaxWidth(),
     ) {
         Text(
             text = text,
@@ -276,7 +283,8 @@ fun ExerciseModal(
                         readOnly = true,
                         label = { Text("Muscle Group") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .menuAnchor()
                     )
                     DropdownMenu(

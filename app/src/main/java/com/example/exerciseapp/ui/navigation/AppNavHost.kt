@@ -36,7 +36,7 @@ fun AppNavHost(
         composable(route = HomeDestination.route) {
             ExerciseScreen(
                 navController = navController,
-                navigateToExerciseList = { navController.navigate("${ExerciseListDestination.route}/${it}") },
+                navigateToLogEntry = { navController.navigate("${LogEntryDestination.route}/${it}") },
                 navigateToMuscleGroupScreen = {navController.navigate("${MuscleGroupScreenDestination.route}/${it}") }
             )
         }

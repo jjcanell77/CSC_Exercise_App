@@ -46,16 +46,4 @@ class WorkoutEntryViewModel(
             }
         }
     }
-
-    fun addExercise(name: String, typeId: Int) {
-        viewModelScope.launch {
-            val newExercise = Exercise(
-                name = name,
-                typeId = typeId,
-                isCustom = true
-            )
-            val workoutId = exerciseRepository.addExercise(newExercise).toInt()
-            getExercises()
-        }
-    }
 }

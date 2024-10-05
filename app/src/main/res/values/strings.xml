@@ -11,4 +11,5 @@
     <string name="workout_entry_screen">New Workout</string>
     <string name="muscle_group_screen">Exercise By Muscle Group</string>
     <string name="exercise_entry_screen">Exercise Entry Screen</string>
+    <string name="no_results_card">No Results</string>
 </resources>
