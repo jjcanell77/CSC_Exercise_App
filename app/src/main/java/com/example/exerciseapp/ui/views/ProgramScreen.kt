@@ -1,4 +1,3 @@
-
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.example.exerciseapp.ui.views
 
@@ -44,6 +43,7 @@ object ProgramDestination : NavigationDestination {
     override val titleRes = R.string.program_screen_title
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgramScreen (
     navController: NavController,

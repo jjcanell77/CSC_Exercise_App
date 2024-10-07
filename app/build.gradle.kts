@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.database)
+    implementation(libs.androidx.navigation.testing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -76,6 +77,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("io.mockk:mockk:1.12.4")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
 }

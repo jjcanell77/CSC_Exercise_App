@@ -5,13 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.MuscleGroup
-import com.example.exerciseapp.data.repository.ExerciseRepository
+import com.example.exerciseapp.data.repository.IExerciseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ExerciseViewModel(
-    private val exerciseRepository: ExerciseRepository
+    private val exerciseRepository: IExerciseRepository
 ) : ViewModel() {
     val searchText = MutableStateFlow("")
     val isSearching = MutableStateFlow(false)

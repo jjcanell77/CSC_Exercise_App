@@ -3,13 +3,13 @@ package com.example.exerciseapp.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exerciseapp.data.model.Workout
-import com.example.exerciseapp.data.repository.WorkoutRepository
+import com.example.exerciseapp.data.repository.IWorkoutRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ProgramViewModel(
-    private val workoutRepository: WorkoutRepository
+    private val workoutRepository: IWorkoutRepository
 ) : ViewModel() {
 
     private val _programs = MutableStateFlow<List<Workout>>(emptyList())

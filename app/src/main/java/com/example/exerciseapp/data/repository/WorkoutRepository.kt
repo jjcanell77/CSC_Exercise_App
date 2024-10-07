@@ -9,32 +9,32 @@ import com.example.exerciseapp.data.model.WorkoutWithExercises
 class WorkoutRepository(
     private val workoutDao: WorkoutDao,
     private val workoutExerciseDao: WorkoutExerciseDao
-) {
-    suspend fun insertWorkout(workout: Workout): Long {
+) : IWorkoutRepository {
+    override suspend fun insertWorkout(workout: Workout): Long {
         return workoutDao.insertWorkout(workout)
     }
 
-    suspend fun insertWorkoutExerciseCrossRef(crossRef: WorkoutExercise) {
+    override suspend fun insertWorkoutExerciseCrossRef(crossRef: WorkoutExercise) {
         workoutExerciseDao.insertWorkoutExercise(crossRef)
     }
 
-    suspend fun getWorkoutWithExercises(workoutId: Int): WorkoutWithExercises {
+    override suspend fun getWorkoutWithExercises(workoutId: Int): WorkoutWithExercises {
         return workoutExerciseDao.getWorkoutWithExercises(workoutId)
     }
 
-    suspend fun getNonCustomWorkouts(): List<Workout> {
+    override suspend fun getNonCustomWorkouts(): List<Workout> {
         return workoutDao.getWorkoutsByCustomFlag(isCustom = false)
     }
 
-    suspend fun getCustomWorkouts(): List<Workout> {
+    override suspend fun getCustomWorkouts(): List<Workout> {
         return workoutDao.getWorkoutsByCustomFlag(isCustom = true)
     }
 
-    suspend fun deleteWorkout(workout: Workout) {
+    override suspend fun deleteWorkout(workout: Workout) {
         workoutDao.deleteWorkout(workout)
     }
 
-    suspend fun updateWorkout(workout: Workout) {
+    override suspend fun updateWorkout(workout: Workout) {
         workoutDao.updateWorkout(workout)
     }
 }

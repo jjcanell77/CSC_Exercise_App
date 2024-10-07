@@ -6,16 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.exerciseapp.data.model.ExerciseSet
 import com.example.exerciseapp.data.model.Log
 import com.example.exerciseapp.data.model.LogWithSets
-import com.example.exerciseapp.data.repository.ExerciseRepository
-import com.example.exerciseapp.data.repository.LogRepository
+import com.example.exerciseapp.data.repository.IExerciseRepository
+import com.example.exerciseapp.data.repository.ILogRepository
 import com.example.exerciseapp.ui.views.LogEntryDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LogViewModel(
-    private val logRepository: LogRepository,
-    private val exerciseRepository: ExerciseRepository,
+    private val logRepository: ILogRepository,
+    private val exerciseRepository: IExerciseRepository,
     savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
 

@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exerciseapp.data.model.Exercise
 import com.example.exerciseapp.data.model.MuscleGroup
-import com.example.exerciseapp.data.repository.ExerciseRepository
-import com.example.exerciseapp.data.repository.WorkoutRepository
+import com.example.exerciseapp.data.repository.IExerciseRepository
+import com.example.exerciseapp.data.repository.IWorkoutRepository
 import com.example.exerciseapp.ui.views.ExerciseListDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 
 class ExerciseListViewModel(
     savedStateHandle: SavedStateHandle,
-    private val workoutRepository: WorkoutRepository,
-    private  val exerciseRepository: ExerciseRepository
+    private val workoutRepository: IWorkoutRepository,
+    private  val exerciseRepository: IExerciseRepository
 ) : ViewModel() {
     private val workoutId: Int = checkNotNull(savedStateHandle[ExerciseListDestination.workoutIdArg])
     private val _exerciseList = MutableStateFlow<List<Exercise>>(emptyList())

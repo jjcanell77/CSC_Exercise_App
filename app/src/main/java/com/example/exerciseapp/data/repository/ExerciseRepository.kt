@@ -8,41 +8,41 @@ import com.example.exerciseapp.data.model.MuscleGroup
 class ExerciseRepository(
     private val exerciseDao: ExerciseDao,
     private val muscleGroupDao: MuscleGroupDao
-) {
+) : IExerciseRepository {
 
-    suspend fun getAllExercises(): List<Exercise> {
+    override suspend fun getAllExercises(): List<Exercise> {
         return exerciseDao.getAllExercises()
     }
 
-    suspend fun getAllMuscleGroups(): List<MuscleGroup> {
+    override suspend fun getAllMuscleGroups(): List<MuscleGroup> {
         return muscleGroupDao.getAllMuscleGroups()
     }
 
-    suspend fun getExercisesByMuscleGroup(typeId: Int): List<Exercise> {
+    override suspend fun getExercisesByMuscleGroup(typeId: Int): List<Exercise> {
         return exerciseDao.getExercisesByMuscleGroup(typeId)
     }
 
-    suspend fun getExerciseById(id: Int): Exercise {
+    override suspend fun getExerciseById(id: Int): Exercise {
         return exerciseDao.getExerciseById(id)
     }
 
-    suspend fun getMuscleGroupById(id: Int): MuscleGroup {
+    override suspend fun getMuscleGroupById(id: Int): MuscleGroup {
         return exerciseDao.getMuscleGroupById(id)
     }
 
-    suspend fun searchExercises(query: String): List<Exercise> {
+    override suspend fun searchExercises(query: String): List<Exercise> {
         return exerciseDao.searchExercises("%$query%")
     }
 
-    suspend fun deleteExercise(exercise: Exercise) {
+    override suspend fun deleteExercise(exercise: Exercise) {
         exerciseDao.deleteExercise(exercise)
     }
 
-    suspend fun updateExercise(exercise: Exercise) {
+    override suspend fun updateExercise(exercise: Exercise) {
         exerciseDao.updateExercise(exercise)
     }
 
-    suspend fun addExercise(exercise: Exercise): Long {
+    override suspend fun addExercise(exercise: Exercise): Long {
         return exerciseDao.addExercise(exercise)
     }
 }
